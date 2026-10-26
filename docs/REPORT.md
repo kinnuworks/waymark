@@ -87,8 +87,15 @@ Every decision is stored with what the agent saw, what it decided and why, and s
 | Lens calibration from 8 board views, per phone | 0.22 and 0.30 px RMS |
 | Live tracking error while walking (median) | 2.7 cm and 0.9 cm |
 | Build (merge + board-anchored adjustment) | 39 overlaps verified, 1,421 points fused, walkers' disagreement 8 mm → 4 mm, 104 s |
-| Visitor (third pass, no board, no poses) | 92 of 100 frames confidently located; floor-position error 1.9 cm median, 5.3 cm 90th percentile; 585 ms per frame |
+| Visitor (third pass, no board, no poses) | 92 of 100 frames confidently located; floor-position error 1.9 cm median, 5.3 cm 90th percentile, 585 ms per frame on c8g.large; re-run on c8g.xlarge: 1.4 cm median, 3.2 cm 90th percentile, 354 ms |
 | Agent behaviour | "Located. You are near Bookshelf." → arrived at "Door to the corridor" with the side named; asked for a slow pan on 8 weak frames and asked the visitor to stop once |
+
+The same replay on two other 7-Scenes scenes shows where the method breaks:
+
+| Scene | What happened | Why |
+|---|---|---|
+| Office (larger room, desks) | Visitor located on 100% of frames, 16 cm median floor error (28 cm 90th percentile). The second walker never joined the map | The board was visible only at the start of the first walk, so its drift was never corrected. The second sequence never passes the board at all, so it cannot be placed in the building frame. Both break the protocol (start and end every walk at the board) |
+| Stairs | Tracking lost on 90% of frames; the visitor's guide asked for a slow pan, asked them to stop, then called the helper | Repetitive steps give matches that do not agree on one pose. The agent did the right thing, but the map was unusable |
 
 Failure found and fixed here: after arriving, the agent kept repeating the arrival message as the side changed between "ahead" and "right". It now stays quiet once arrived.
 
@@ -137,7 +144,15 @@ Nearly all the time is the ALIKED network, and it scales with cores. Using Light
 
 ### 7.5 Failure cases
 
-FAILURES
+| Failure | Found by | What we did |
+|---|---|---|
+| Bundle adjustment stalled at 9 px with a tight Huber loss | synthetic test with a known answer | two linear stages with outlier culling: 0.93 px, 4.6 mm |
+| Confident but wrong board poses from 6 corners at 1.5 m | API smoke test | require 12 corners over 12% of the image; volunteers start an arm's length away |
+| Tracker never started: too little sideways motion at the board | 7-Scenes walk test | denser keyframes and a wide-baseline partner until 300 points exist |
+| Map state could not be saved (OpenCV objects in the pickle) | API smoke test and demo build | store only specs and centres, rebuild OpenCV objects on load |
+| Arrival message repeated | whole system replay | stay quiet after arriving |
+| Lost tracking early in a walk could not recover (no vocabulary yet) | Stairs replay | try LightGlue against the latest keyframes directly |
+| Repetitive stairs defeat tracking | Stairs replay | not fixed; the agent hands over to a person (see 7.0) |
 
 ## 8. Limitations
 
