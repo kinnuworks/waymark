@@ -1,15 +1,17 @@
 {
   "Waymark": {
-    "TableName": "Waymark-TracesF050D86D-95WFU0HW3FVG",
     "BenchSubnetId": "subnet-0f9b41cd99e86f200",
     "ElasticIp": "23.21.146.243",
     "CloudFrontUrl": "disabled (set context waymark:enableCloudFront=true once the account is verified for CloudFront)",
-    "BucketName": "waymark-archiveda4cb258-9udz1lbhqbx7",
-    "OriginDns": "ec2-23-21-146-243.compute-1.amazonaws.com",
     "InstanceProfileName": "Waymark-ApiInstanceProfile18824D31-L2bcohB4sjCF",
     "InstanceId": "i-0ce51386166478484",
+    "SiteUrl": "https://5hfibd6grf.execute-api.us-east-1.amazonaws.com",
+    "BudgetTopicArn": "arn:aws:sns:us-east-1:414997933603:Waymark-BudgetAlertsB25CE4A8-LHMKgpjfQldR",
+    "TableName": "Waymark-TracesF050D86D-95WFU0HW3FVG",
+    "BucketName": "waymark-archiveda4cb258-9udz1lbhqbx7",
+    "OriginDns": "ec2-23-21-146-243.compute-1.amazonaws.com",
     "LogGroupName": "/waymark/app",
     "BenchSecurityGroupId": "sg-0840b3782874a7627",
-    "BudgetTopicArn": "arn:aws:sns:us-east-1:414997933603:Waymark-BudgetAlertsB25CE4A8-LHMKgpjfQldR"
+    "ApiId": "5hfibd6grf"
   }
 }

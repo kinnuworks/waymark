@@ -172,6 +172,30 @@ def finish(bid: str, wid: str):
     return _building(bid).finish(wid)
 
 
+class CheckpointsIn(BaseModel):
+    checkpoints: dict[str, list[float]]  # id -> [x, z] in metres, tape-measured from the board
+
+
+@app.get("/api/buildings/{bid}/checkpoints")
+def get_checkpoints(bid: str):
+    f = _building(bid).dir / "checkpoints.json"
+    return json.loads(f.read_text()) if f.exists() else {"checkpoints": {}}
+
+
+@app.post("/api/buildings/{bid}/checkpoints")
+def set_checkpoints(bid: str, body: CheckpointsIn):
+    b = _building(bid)
+    b.dir.mkdir(parents=True, exist_ok=True)
+    (b.dir / "checkpoints.json").write_text(json.dumps({"checkpoints": body.checkpoints}, indent=1))
+    return {"ok": True, "n": len(body.checkpoints)}
+
+
+@app.get("/api/buildings/{bid}/report")
+def field_report(bid: str):
+    from .fieldreport import report
+    return report(_building(bid))
+
+
 @app.get("/api/buildings/{bid}/coordinator")
 def coordinator(bid: str):
     return _building(bid).coordinator()

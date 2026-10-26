@@ -15,7 +15,20 @@ if ! aws cloudformation describe-stacks --stack-name CDKToolkit >/dev/null 2>&1;
   $CDK bootstrap "aws://$ACCOUNT/$AWS_REGION"
 fi
 
-$CDK deploy "$STACK_NAME" --require-approval never --outputs-file outputs.json "$@"
+# Origin secret (X-Waymark-Origin): SecureString in SSM, created once here because
+# CloudFormation cannot create SecureString parameters. Never printed.
+SECRET_PARAM=/waymark/origin-secret
+if ! aws ssm get-parameter --name "$SECRET_PARAM" >/dev/null 2>&1; then
+  echo ">> creating SecureString $SECRET_PARAM"
+  aws ssm put-parameter --name "$SECRET_PARAM" --type SecureString --tier Standard \
+    --description "Waymark origin header secret (API Gateway/CloudFront -> nginx)" \
+    --value "$(openssl rand -hex 16)" >/dev/null
+fi
+ORIGIN_SECRET="$(aws ssm get-parameter --name "$SECRET_PARAM" --with-decryption --query Parameter.Value --output text)"
+
+$CDK deploy "$STACK_NAME" --require-approval never --outputs-file outputs.json \
+  --parameters "OriginSecret=$ORIGIN_SECRET" "$@"
+unset ORIGIN_SECRET
 
 echo
 echo "== $STACK_NAME outputs (infra/outputs.json) =="

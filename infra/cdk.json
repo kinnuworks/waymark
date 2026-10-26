@@ -15,7 +15,7 @@
     "waymark:repoUrl": "https://github.com/kinnuworks/waymark.git",
     "waymark:instanceType": "c8g.large",
     "waymark:availabilityZone": "us-east-1a",
-    "waymark:monthlyBudgetUsd": 40,
+    "waymark:monthlyBudgetUsd": 90,
     "waymark:enableCloudFront": false
   }
 }

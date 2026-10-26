@@ -69,6 +69,14 @@ def render_png(spec: BoardSpec, dpi: int = 300) -> bytes:
 
 
 class BoardDetector:
+    """Detects the board and solves the camera pose. Pickles as just its spec."""
+
+    def __getstate__(self):
+        return {"spec": self.spec}
+
+    def __setstate__(self, state):
+        self.__init__(state["spec"])
+
     def __init__(self, spec: BoardSpec):
         self.spec = spec
         self.board = spec.board()
@@ -96,6 +104,11 @@ class BoardDetector:
         if found is None:
             return None
         px, ids = found
+        # A pose from a handful of corners on a small, distant board is
+        # ambiguous; insist on enough corners spread over enough of the image.
+        span = np.ptp(px, axis=0).max() / max(gray.shape)
+        if len(ids) < 12 or span < 0.12:
+            return None
         obj = self.object_points(ids)
         dist = np.zeros(5) if dist is None else dist
         ok, rvec, tvec = cv2.solvePnP(obj, px, K, dist, flags=cv2.SOLVEPNP_SQPNP)

@@ -1,0 +1,141 @@
+{
+ "merge": {
+  "scene": "heads",
+  "walkers": [
+   2,
+   1
+  ],
+  "walks": [
+   {
+    "scene": "heads",
+    "seq": 2,
+    "frames": 100,
+    "step": 10,
+    "anchored_frames": 20,
+    "states": {
+     "tracking": 86,
+     "rejected": 5,
+     "lost": 9
+    },
+    "keyframes": 46,
+    "points": 5150,
+    "tracked_frames": 66,
+    "live_tracking_error": {
+     "mean_m": 0.1861,
+     "median_m": 0.1349,
+     "rmse_m": 0.2259,
+     "max_m": 0.4191
+    },
+    "keyframe_error_before_ba": {
+     "mean_m": 0.123,
+     "median_m": 0.0936,
+     "rmse_m": 0.1757,
+     "max_m": 0.3889
+    },
+    "keyframe_error_after_ba": {
+     "mean_m": 0.0239,
+     "median_m": 0.0205,
+     "rmse_m": 0.0297,
+     "max_m": 0.0688
+    },
+    "ba": {
+     "ok": true,
+     "keyframes": 46,
+     "points": 5151,
+     "observations": 15937,
+     "board_corners": 0,
+     "rms_before_px": 15.196,
+     "rms_after_px": 1.143,
+     "board_rms_before_px": 0.0,
+     "board_rms_after_px": 0.0,
+     "anchors": 12,
+     "points_removed": 1,
+     "iterations": 57,
+     "seconds": 7.51
+    },
+    "ms_per_frame": 875.8
+   },
+   {
+    "scene": "heads",
+    "seq": 1,
+    "frames": 100,
+    "step": 10,
+    "anchored_frames": 20,
+    "states": {
+     "tracking": 73,
+     "lost": 24,
+     "rejected": 3
+    },
+    "keyframes": 39,
+    "points": 4458,
+    "tracked_frames": 53,
+    "live_tracking_error": {
+     "mean_m": 0.1999,
+     "median_m": 0.2315,
+     "rmse_m": 0.2321,
+     "max_m": 0.3825
+    },
+    "keyframe_error_before_ba": {
+     "mean_m": 0.1509,
+     "median_m": 0.1677,
+     "rmse_m": 0.2018,
+     "max_m": 0.3825
+    },
+    "keyframe_error_after_ba": {
+     "mean_m": 0.0632,
+     "median_m": 0.0745,
+     "rmse_m": 0.0814,
+     "max_m": 0.1543
+    },
+    "ba": {
+     "ok": true,
+     "keyframes": 39,
+     "points": 4462,
+     "observations": 13119,
+     "board_corners": 0,
+     "rms_before_px": 2.179,
+     "rms_after_px": 1.138,
+     "board_rms_before_px": 0.0,
+     "board_rms_after_px": 0.0,
+     "anchors": 11,
+     "points_removed": 4,
+     "iterations": 80,
+     "seconds": 15.91
+    },
+    "ms_per_frame": 1486.4
+   }
+  ],
+  "merge": {
+   "walkers": [
+    "w1",
+    "w2"
+   ],
+   "pairs_tested": 138,
+   "pairs_verified": 128,
+   "points_fused": 5585,
+   "disagreement_before_m": 0.006,
+   "disagreement_after_m": 0.004,
+   "ba": {
+    "ok": true,
+    "keyframes": 85,
+    "points": 4023,
+    "observations": 35456,
+    "board_corners": 0,
+    "rms_before_px": 28.437,
+    "rms_after_px": 2.308,
+    "board_rms_before_px": 0.0,
+    "board_rms_after_px": 0.0,
+    "anchors": 23,
+    "points_removed": 110,
+    "iterations": 26,
+    "seconds": 2.62
+   }
+  },
+  "merged_keyframe_error": {
+   "mean_m": 0.0144,
+   "median_m": 0.0115,
+   "rmse_m": 0.0171,
+   "max_m": 0.0416
+  }
+ }
+}

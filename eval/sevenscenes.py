@@ -43,14 +43,49 @@ OUT = ROOT / "eval" / "out"
 K = np.array([[525.0, 0, 320.0], [0, 525.0, 240.0], [0, 0, 1]])
 
 
-def seq_frames(scene: str, seq: int) -> list[tuple[Path, np.ndarray, np.ndarray]]:
+_ALIGN: dict[str, tuple[np.ndarray, np.ndarray]] = {}
+
+
+def _raw(scene: str, seq: int) -> list[tuple[Path, np.ndarray]]:
     d = DATA / scene / f"seq-{seq:02d}"
+    return [(f, np.loadtxt(str(f).replace(".color.png", ".pose.txt")))  # camera-to-world
+            for f in sorted(d.glob("frame-*.color.png"))]
+
+
+def alignment(scene: str) -> tuple[np.ndarray, np.ndarray]:
+    """Rotate the dataset frame so y is up and shift so cameras sit 1.4 m above the floor.
+
+    7-Scenes poses have no gravity direction. People hold the camera roughly
+    upright, so the mean camera "down" axis is a good estimate of gravity.
+    Errors are measured between poses in the same frame, so this changes no
+    metric; it only lets the floor plan treat y as height.
+    """
+    if scene in _ALIGN:
+        return _ALIGN[scene]
+    seqs = sorted(int(p.name.split("-")[1]) for p in (DATA / scene).glob("seq-*") if p.is_dir())
+    Ts = [T for s in seqs for _, T in _raw(scene, s)[::10]]
+    down = np.mean([T[:3, 1] for T in Ts], axis=0)  # camera +y (image down) in world
+    down /= np.linalg.norm(down)
+    up = -down
+    # Rotation taking `up` to +y.
+    v = np.cross(up, [0, 1.0, 0])
+    c = float(np.dot(up, [0, 1.0, 0]))
+    vx = np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
+    A = np.eye(3) + vx + vx @ vx / (1 + c)
+    centers = np.array([A @ T[:3, 3] for T in Ts])
+    b = np.array([-centers[0, 0], 1.4 - centers[:, 1].mean(), -centers[0, 2]])
+    _ALIGN[scene] = (A, b)
+    return A, b
+
+
+def seq_frames(scene: str, seq: int) -> list[tuple[Path, np.ndarray, np.ndarray]]:
+    """Frames with world-to-camera poses in the gravity-aligned frame."""
+    A, b = alignment(scene)
     out = []
-    for f in sorted(d.glob("frame-*.color.png")):
-        T = np.loadtxt(str(f).replace(".color.png", ".pose.txt"))  # camera-to-world
-        Rcw = T[:3, :3].T
-        tcw = -Rcw @ T[:3, 3]
-        out.append((f, Rcw, tcw))
+    for f, T in _raw(scene, seq):
+        Rcw = T[:3, :3].T @ A.T
+        C = A @ T[:3, 3] + b
+        out.append((f, Rcw, -Rcw @ C))
     return out
 
 

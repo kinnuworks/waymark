@@ -6,6 +6,8 @@ IID="${WAYMARK_INSTANCE_ID:-$(stack_output InstanceId)}"
 
 read -r -d '' REMOTE <<'SH' || true
 set -euo pipefail
+# Re-apply the repo-independent nginx front config (origin header check) if installed.
+if [ -x /usr/local/bin/waymark-nginx-apply ]; then /usr/local/bin/waymark-nginx-apply; fi
 if [ ! -f /var/lib/waymark/.bootstrapped ]; then
   echo "first install: running waymark-sync"
   /usr/local/bin/waymark-sync

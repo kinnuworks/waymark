@@ -26,7 +26,7 @@ from .vision.features import extractor
 COLOURS = ["#C2410C", "#1D4ED8", "#15803D", "#7E22CE"]
 
 VOLUNTEER_SAY = {
-    "need_board": "Point the camera at the entrance board.",
+    "need_board": "Stand about an arm's length from the entrance board and point the camera at it.",
     "bootstrap": "Keep the board in view and take two slow steps sideways.",
     "board_start": "Board found. Walk slowly into the building, holding the phone at chest height.",
     "blurry": "Too blurry. Walk a little slower.",
@@ -198,7 +198,11 @@ class Building:
                                      "say": f"Next, head about {max(1, round(d))} metres {direction}. Nobody has walked that area yet."}
         for w in active:
             if w.id not in assignments:
-                assignments[w.id] = {"target": None, "say": "Your area is covered. Walk back to the entrance board to finish."}
+                if len(w.tracker.data.keyframes) < 25:
+                    say = "Keep walking. Go along each corridor and look into each room."
+                else:
+                    say = "Your area looks covered. Walk back to the entrance board to finish."
+                assignments[w.id] = {"target": None, "say": say}
         return {"coverage_pct": round(floorplan.coverage(plan), 1), "frontiers": fr, "assignments": assignments}
 
     def build(self) -> dict:
@@ -224,7 +228,7 @@ class Building:
         return {"ok": True, "stats": stats}
 
     def _activate(self):
-        self.localizer = Localizer(self.merged)
+        self.localizer = Localizer(self.merged, check_height=getattr(self, "check_height", True))
         self.guide = GuideAgent(self.merged, self.plan)
 
     def map_json(self) -> dict:

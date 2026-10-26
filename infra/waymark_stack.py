@@ -4,11 +4,15 @@ from pathlib import Path
 
 from aws_cdk import (
     CfnOutput,
+    CfnParameter,
     Duration,
     Fn,
     RemovalPolicy,
     Stack,
 )
+import base64
+
+from aws_cdk import aws_apigatewayv2 as apigwv2
 from aws_cdk import aws_budgets as budgets
 from aws_cdk import aws_cloudfront as cloudfront
 from aws_cdk import aws_cloudfront_origins as origins
@@ -19,10 +23,12 @@ from aws_cdk import aws_iam as iam
 from aws_cdk import aws_logs as logs
 from aws_cdk import aws_s3 as s3
 from aws_cdk import aws_sns as sns
+from aws_cdk import aws_ssm as ssm
 from constructs import Construct
 
 UBUNTU_ARM64_AMI_PARAM = "/aws/service/canonical/ubuntu/server/24.04/stable/current/arm64/hvm/ebs-gp3/ami-id"
-CLOUDFRONT_ORIGIN_FACING_PL = "com.amazonaws.global.cloudfront.origin-facing"
+ORIGIN_SECRET_PARAM = "/waymark/origin-secret"  # SecureString, created by scripts/deploy.sh
+ORIGIN_HEADER = "X-Waymark-Origin"
 UV_VERSION = "0.12.9"
 LOG_GROUP_NAME = "/waymark/app"
 
@@ -73,22 +79,20 @@ class WaymarkStack(Stack):
 
         # ------------------------------------------------------------------ network
         vpc = ec2.Vpc.from_lookup(self, "DefaultVpc", is_default=True)
-        cf_prefix_list = ec2.PrefixList.from_lookup(
-            self, "CloudFrontOriginFacing", prefix_list_name=CLOUDFRONT_ORIGIN_FACING_PL
-        )
 
         sg = ec2.SecurityGroup(
             self,
             "OriginSg",
             vpc=vpc,
+            # Description is immutable (changing it replaces the SG and risks the instance); the
+            # rules below are what count: port 80 open, gated by the origin header in nginx.
             description="Waymark origin: HTTP 80 from CloudFront origin-facing ranges only",
             allow_all_outbound=True,
         )
-        sg.add_ingress_rule(
-            ec2.Peer.prefix_list(cf_prefix_list.prefix_list_id),
-            ec2.Port.tcp(80),
-            "CloudFront origin-facing",
-        )
+        # API Gateway has no prefix list, so port 80 is open to the internet. nginx answers 403
+        # unless the request carries X-Waymark-Origin=<secret>, which only API Gateway (and
+        # CloudFront, when enabled) add.
+        sg.add_ingress_rule(ec2.Peer.any_ipv4(), ec2.Port.tcp(80), "HTTP; gated by origin secret header in nginx")
 
         # Used by scripts/launch_bench_instance.sh: no inbound rules at all (SSM only).
         bench_sg = ec2.SecurityGroup(
@@ -98,6 +102,18 @@ class WaymarkStack(Stack):
             description="Waymark temporary benchmark instances: no inbound",
             allow_all_outbound=True,
         )
+
+        # The secret value never appears in the template: deploy.sh reads the SecureString and
+        # passes it as this NoEcho parameter.
+        origin_secret = CfnParameter(
+            self,
+            "OriginSecret",
+            type="String",
+            no_echo=True,
+            min_length=32,
+            allowed_pattern="[A-Za-z0-9]+",
+            description=f"Value of {ORIGIN_HEADER}; mirrors SSM SecureString {ORIGIN_SECRET_PARAM}",
+        ).value_as_string
 
         # ------------------------------------------------------------------ IAM (least privilege)
         role = iam.Role(
@@ -130,6 +146,13 @@ class WaymarkStack(Stack):
                 sid="CloudWatchAgentDescribe",
                 actions=["ec2:DescribeTags", "ec2:DescribeVolumes"],
                 resources=["*"],
+            )
+        )
+        role.add_to_policy(
+            iam.PolicyStatement(
+                sid="ReadOriginSecret",
+                actions=["ssm:GetParameter"],
+                resources=[f"arn:aws:ssm:{self.region}:{self.account}:parameter{ORIGIN_SECRET_PARAM}"],
             )
         )
         role.add_to_policy(
@@ -189,6 +212,70 @@ class WaymarkStack(Stack):
             ["ec2-", Fn.join("-", Fn.split(".", eip.attr_public_ip)), ".compute-1.amazonaws.com"],
         )
 
+        # ------------------------------------------------------------------ nginx front config via SSM
+        # Repo-independent and outside user data, so changing it never replaces the instance.
+        # State Manager runs it when the association is created/changed and on a new instance id.
+        nginx_script = (Path(__file__).parent / "instance" / "nginx_apply.sh").read_text()
+        nginx_script = nginx_script.replace("@@REGION@@", self.region).replace("@@SECRET_PARAM@@", ORIGIN_SECRET_PARAM)
+        nginx_b64 = base64.b64encode(nginx_script.encode()).decode()
+        ssm.CfnAssociation(
+            self,
+            "NginxConfig",
+            name="AWS-RunShellScript",
+            association_name="waymark-nginx-front",
+            targets=[ssm.CfnAssociation.TargetProperty(key="InstanceIds", values=[instance.instance_id])],
+            parameters={
+                "commands": [
+                    f"echo {nginx_b64} | base64 -d > /usr/local/bin/waymark-nginx-apply",
+                    "chmod 0755 /usr/local/bin/waymark-nginx-apply",
+                    "/usr/local/bin/waymark-nginx-apply",
+                ],
+                "executionTimeout": ["900"],
+            },
+            max_errors="0",
+        )
+
+        # ------------------------------------------------------------------ API Gateway HTTP API (HTTPS front door)
+        http_api = apigwv2.CfnApi(
+            self,
+            "HttpApi",
+            name="waymark",
+            protocol_type="HTTP",
+            description="Waymark HTTPS front door -> instance nginx (origin secret header)",
+        )
+        integration = apigwv2.CfnIntegration(
+            self,
+            "OriginIntegration",
+            api_id=http_api.ref,
+            integration_type="HTTP_PROXY",
+            integration_method="ANY",
+            integration_uri=Fn.join("", ["http://", origin_dns]),
+            payload_format_version="1.0",
+            timeout_in_millis=30000,
+            request_parameters={
+                f"overwrite:header.{ORIGIN_HEADER}": origin_secret,
+                "overwrite:path": "$request.path",
+            },
+        )
+        apigwv2.CfnRoute(
+            self,
+            "DefaultRoute",
+            api_id=http_api.ref,
+            route_key="$default",
+            target=Fn.join("/", ["integrations", integration.ref]),
+        )
+        apigwv2.CfnStage(
+            self,
+            "DefaultStage",
+            api_id=http_api.ref,
+            stage_name="$default",
+            auto_deploy=True,
+            default_route_settings=apigwv2.CfnStage.RouteSettingsProperty(
+                throttling_burst_limit=200, throttling_rate_limit=100
+            ),
+        )
+        site_url = http_api.attr_api_endpoint
+
         # ------------------------------------------------------------------ CloudFront
         distribution = None
         if enable_cf:
@@ -198,6 +285,7 @@ class WaymarkStack(Stack):
                 http_port=80,
                 read_timeout=Duration.seconds(60),
                 keepalive_timeout=Duration.seconds(5),
+                custom_headers={ORIGIN_HEADER: origin_secret},
             )
             distribution = cloudfront.Distribution(
                 self,
@@ -263,6 +351,29 @@ class WaymarkStack(Stack):
                     ),
                 ],
                 left_y_axis=cw.YAxisProps(min=0, max=100),
+                width=8,
+            ),
+        )
+        def api_metric(name: str) -> cw.Metric:
+            return cw.Metric(
+                namespace="AWS/ApiGateway",
+                metric_name=name,
+                dimensions_map={"ApiId": http_api.ref},
+                statistic="Sum",
+                period=Duration.minutes(5),
+            )
+
+        dashboard.add_widgets(
+            cw.GraphWidget(title="API Gateway 5xx / 4xx", left=[api_metric("5xx"), api_metric("4xx")], width=8),
+            cw.GraphWidget(title="API Gateway requests", left=[api_metric("Count")], width=8),
+            cw.GraphWidget(
+                title="API Gateway latency (p50 / p99 ms)",
+                left=[
+                    cw.Metric(namespace="AWS/ApiGateway", metric_name="Latency", dimensions_map={"ApiId": http_api.ref},
+                              statistic="p50", period=Duration.minutes(5)),
+                    cw.Metric(namespace="AWS/ApiGateway", metric_name="Latency", dimensions_map={"ApiId": http_api.ref},
+                              statistic="p99", period=Duration.minutes(5)),
+                ],
                 width=8,
             ),
         )
@@ -335,6 +446,8 @@ class WaymarkStack(Stack):
         budget.node.add_dependency(topic)
 
         # ------------------------------------------------------------------ outputs
+        CfnOutput(self, "SiteUrl", value=site_url)
+        CfnOutput(self, "ApiId", value=http_api.ref)
         if distribution is not None:
             CfnOutput(self, "CloudFrontUrl", value=f"https://{distribution.distribution_domain_name}")
             CfnOutput(self, "DistributionId", value=distribution.distribution_id)

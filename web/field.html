@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en" data-accent="amber">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Waymark field test</title>
+<meta name="description" content="Enter tape-measured checkpoints and read the field test results for a mapped building.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .ft-wrap { max-width: 920px; margin: 0 auto; padding: 24px 16px 64px; }
+  .ft-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .ft-table th, .ft-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid color-mix(in srgb, currentColor 14%, transparent); }
+  .ft-table input { width: 6.5em; font: inherit; padding: 6px 8px; }
+  .ft-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
+  .ft-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 16px 0; }
+  .ft-kpi { padding: 14px 16px; border-radius: 12px; border: 1px solid color-mix(in srgb, currentColor 14%, transparent); }
+  .ft-kpi b { display: block; font-size: 1.6rem; }
+  .ft-scroll { overflow-x: auto; }
+</style>
+</head>
+<body>
+<main class="ft-wrap">
+  <p><a href="index.html">Waymark</a></p>
+  <h1>Field test</h1>
+  <p>Put numbered tape marks on the floor. For each mark, measure <b>x</b>: the distance along the wall from the centre of the entrance board (right is positive, as you face the board), and <b>z</b>: the distance straight out from the wall. Then, during a guided visit, the evaluator taps the matching checkpoint button in the guidance app when the visitor's phone is over the mark.</p>
+
+  <div class="ft-row">
+    <label for="bsel">Building</label>
+    <select id="bsel"></select>
+  </div>
+
+  <h2>Checkpoints</h2>
+  <div class="ft-scroll">
+    <table class="ft-table" id="cps">
+      <thead><tr><th scope="col">Mark</th><th scope="col">x (m)</th><th scope="col">z (m)</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <div class="ft-row">
+    <button class="btn" id="save" type="button">Save checkpoints</button>
+    <span id="saved" role="status"></span>
+  </div>
+
+  <h2>Results</h2>
+  <div class="ft-row"><button class="btn btn-ghost" id="refresh" type="button">Refresh results</button></div>
+  <div class="ft-kpis" id="kpis"></div>
+  <div class="ft-scroll"><table class="ft-table" id="visits"></table></div>
+  <h3>Checkpoint errors</h3>
+  <div class="ft-scroll"><table class="ft-table" id="cperr"></table></div>
+</main>
+<script type="module">
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const N = 12;
+
+async function j(url, opts) {
+  const r = await fetch(url, opts);
+  if (!r.ok) throw new Error(`${r.status} ${await r.text()}`);
+  return r.json();
+}
+
+async function loadBuildings() {
+  const list = await j("/api/buildings");
+  $("#bsel").innerHTML = list.map((b) => `<option value="${esc(b.id)}">${esc(b.name)}${b.has_map ? "" : " (not built yet)"}</option>`).join("");
+  const want = new URLSearchParams(location.search).get("b");
+  if (want) $("#bsel").value = want;
+  await loadCheckpoints();
+  await loadReport();
+}
+
+async function loadCheckpoints() {
+  const bid = $("#bsel").value;
+  const { checkpoints } = await j(`/api/buildings/${bid}/checkpoints`);
+  const rows = [];
+  for (let i = 1; i <= N; i++) {
+    const v = checkpoints[String(i)] || ["", ""];
+    rows.push(`<tr><th scope="row">${i}</th>
+      <td><input inputmode="decimal" aria-label="Mark ${i} x in metres" data-i="${i}" data-k="0" value="${esc(v[0])}"></td>
+      <td><input inputmode="decimal" aria-label="Mark ${i} z in metres" data-i="${i}" data-k="1" value="${esc(v[1])}"></td></tr>`);
+  }
+  $("#cps tbody").innerHTML = rows.join("");
+}
+
+async function save() {
+  const bid = $("#bsel").value;
+  const cps = {};
+  for (let i = 1; i <= N; i++) {
+    const x = parseFloat(document.querySelector(`input[data-i="${i}"][data-k="0"]`).value);
+    const z = parseFloat(document.querySelector(`input[data-i="${i}"][data-k="1"]`).value);
+    if (Number.isFinite(x) && Number.isFinite(z)) cps[String(i)] = [x, z];
+  }
+  const r = await j(`/api/buildings/${bid}/checkpoints`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ checkpoints: cps }) });
+  $("#saved").textContent = `Saved ${r.n} checkpoints.`;
+}
+
+function kpi(label, value) { return `<div class="ft-kpi"><span>${esc(label)}</span><b>${esc(value ?? "–")}</b></div>`; }
+
+async function loadReport() {
+  const bid = $("#bsel").value;
+  const r = await j(`/api/buildings/${bid}/report`);
+  const c = r.checkpoints, m = r.map || {};
+  $("#kpis").innerHTML = [
+    kpi("Checkpoint fixes", c.n),
+    kpi("Median error", c.median_m == null ? null : `${(c.median_m * 100).toFixed(0)} cm`),
+    kpi("Within 1 m", c.within_1m_pct == null ? null : `${c.within_1m_pct}%`),
+    kpi("Guided visits", r.visits.length),
+    kpi("Arrived", r.arrival_rate_pct == null ? null : `${r.arrival_rate_pct}%`),
+    kpi("Walker disagreement", m.disagreement_before_m == null ? null : `${(m.disagreement_before_m * 100).toFixed(0)} → ${(m.disagreement_after_m * 100).toFixed(0)} cm`),
+  ].join("");
+  const cols = ["visit", "device", "frames", "arrived", "duration_s", "located_pct", "off_route_events", "stairs_pauses", "helper_handoffs", "ms_median", "notes"];
+  $("#visits").innerHTML = `<thead><tr>${cols.map((k) => `<th scope="col">${esc(k.replaceAll("_", " "))}</th>`).join("")}</tr></thead><tbody>${
+    r.visits.map((v) => `<tr>${cols.map((k) => `<td>${esc(v[k])}</td>`).join("")}</tr>`).join("")}</tbody>`;
+  $("#cperr").innerHTML = `<thead><tr><th scope="col">Visit</th><th scope="col">Mark</th><th scope="col">Error</th><th scope="col">Confidence</th></tr></thead><tbody>${
+    c.all.map((e) => `<tr><td>${esc(e.visit)}</td><td>${esc(e.checkpoint)}</td><td>${(e.error_m * 100).toFixed(0)} cm</td><td>${esc(e.confidence)}</td></tr>`).join("")}</tbody>`;
+}
+
+$("#bsel").addEventListener("change", () => { loadCheckpoints(); loadReport(); });
+$("#save").addEventListener("click", () => save().catch((e) => ($("#saved").textContent = e.message)));
+$("#refresh").addEventListener("click", () => loadReport().catch(() => {}));
+loadBuildings().catch((e) => { document.querySelector("main").insertAdjacentHTML("beforeend", `<p role="alert">${esc(e.message)}</p>`); });
+</script>
+</body>
+</html>
