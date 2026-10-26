@@ -145,7 +145,9 @@ qs('#new-building').addEventListener('submit', async (e) => {
   if (!requireName()) return;
   msg.textContent = 'Adding…';
   try {
-    const res = await api.post('/buildings', { name, board_height_m: Math.round(h * 100) / 100 });
+    const sq = parseFloat(qs('#b-square').value);
+    if (!(sq >= 20 && sq <= 80)) { qs('#b-square').focus(); msg.textContent = 'Square size should be between 20 and 80 millimetres.'; return; }
+    const res = await api.post('/buildings', { name, board_height_m: Math.round(h * 100) / 100, square_mm: sq });
     const id = idOf(res);
     store(`builder:${id}`, true); // this device created it, so it may build the map
     msg.textContent = '';

@@ -83,6 +83,11 @@
           <input class="input" id="b-height" name="board_height_m" type="number" inputmode="decimal" min="0.3" max="2.5" step="0.01" value="1.20" required>
           <span class="hint">Measure from the floor to the centre of the printed board.</span>
         </div>
+        <div class="field">
+          <label for="b-square">Square size in millimetres</label>
+          <input class="input" id="b-square" name="square_mm" type="number" inputmode="decimal" min="20" max="80" step="0.5" value="35" required>
+          <span class="hint">Measure one black square on the printed board. It should be 35 mm if it printed at 100%.</span>
+        </div>
         <div class="row">
           <button class="btn btn-ink" type="submit">Add building</button>
           <a class="btn btn-outline" href="/api/board.png" download="waymark-board.png">Get the board to print</a>

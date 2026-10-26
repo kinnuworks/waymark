@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" font-family="Inter, Helvetica, Arial, sans-serif">
+  <style>
+    .box { fill: #FFFFFF; stroke: #1D1D1F; stroke-width: 1.6; rx: 12; }
+    .aws { fill: #FFF7EB; stroke: #C46A00; stroke-width: 1.6; }
+    .cv { fill: #EEF4FF; stroke: #1D4ED8; stroke-width: 1.4; }
+    .agent { fill: #EFFAF1; stroke: #15803D; stroke-width: 1.4; }
+    .human { fill: #FDF0F0; stroke: #B42318; stroke-width: 1.4; }
+    .t { font-size: 15px; fill: #1D1D1F; }
+    .h { font-size: 17px; font-weight: 700; fill: #1D1D1F; }
+    .s { font-size: 12.5px; fill: #424245; }
+    .lab { font-size: 13px; fill: #6E6E73; }
+    .arrow { stroke: #1D1D1F; stroke-width: 1.6; fill: none; marker-end: url(#a); }
+    .dash { stroke-dasharray: 5 4; }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1D1D1F"/>
+    </marker>
+  </defs>
+  <rect width="1200" height="760" fill="#FAFAF7"/>
+  <text x="40" y="44" class="h" style="font-size:22px">Waymark architecture</text>
+  <text x="40" y="68" class="lab">Phones run only a web page. All vision runs in OpenCV 5 on one AWS Graviton4 instance.</text>
+
+  <!-- phones -->
+  <rect x="40" y="110" width="230" height="120" rx="12" class="box"/>
+  <text x="58" y="138" class="h">Volunteer phones (2)</text>
+  <text x="58" y="162" class="s">web page, rear camera</text>
+  <text x="58" y="180" class="s">JPEG every 0.7 s + compass</text>
+  <text x="58" y="198" class="s">"Mark this place"</text>
+  <text x="58" y="216" class="s">hears where to walk next</text>
+
+  <rect x="40" y="300" width="230" height="120" rx="12" class="box"/>
+  <text x="58" y="328" class="h">Visitor phone</text>
+  <text x="58" y="352" class="s">blind or low-vision visitor</text>
+  <text x="58" y="370" class="s">JPEG every 1 s + compass</text>
+  <text x="58" y="388" class="s">speech, vibration, screen reader</text>
+  <text x="58" y="406" class="s">cane or guide dog as usual</text>
+
+  <rect x="40" y="490" width="230" height="96" rx="12" class="human"/>
+  <text x="58" y="518" class="h">Human helper</text>
+  <text x="58" y="542" class="s">console: live position, trace</text>
+  <text x="58" y="560" class="s">answers hand-offs by message</text>
+
+  <rect x="40" y="620" width="230" height="96" rx="12" class="box"/>
+  <text x="58" y="648" class="h">Entrance board</text>
+  <text x="58" y="672" class="s">printed ChArUco, A4</text>
+  <text x="58" y="690" class="s">shared origin + metric scale;</text>
+  <text x="58" y="708" class="s">every walk starts and ends here</text>
+
+  <!-- AWS -->
+  <rect x="320" y="96" width="850" height="636" rx="16" class="aws"/>
+  <text x="340" y="124" class="h" style="fill:#8A4B00">AWS us-east-1</text>
+  <rect x="340" y="140" width="200" height="64" rx="10" class="box"/>
+  <text x="356" y="166" class="t">API Gateway (HTTPS)</text>
+  <text x="356" y="186" class="s">origin secret header</text>
+
+  <rect x="580" y="140" width="570" height="470" rx="12" class="box"/>
+  <text x="598" y="166" class="h">EC2 c8g.large, Graviton4 (arm64), OpenCV 5.0</text>
+  <text x="598" y="186" class="s">nginx → FastAPI, CDK-defined, SSM-managed, no SSH</text>
+
+  <rect x="598" y="204" width="260" height="190" rx="10" class="cv"/>
+  <text x="612" y="228" class="h" style="font-size:15px">Mapping (per walker)</text>
+  <text x="612" y="250" class="s">ArUco/ChArUco board pose (solvePnP)</text>
+  <text x="612" y="268" class="s">ALIKED keypoints (DNN engine)</text>
+  <text x="612" y="286" class="s">MNN tracking + MAGSAC++ PnP</text>
+  <text x="612" y="304" class="s">LightGlue at keyframes</text>
+  <text x="612" y="322" class="s">triangulatePoints + checks</text>
+  <text x="612" y="340" class="s">VLAD (kmeans) relocalisation</text>
+  <text x="612" y="358" class="s">quality gate: blur, exposure</text>
+  <text x="612" y="376" class="s">places marked by volunteers</text>
+
+  <rect x="874" y="204" width="260" height="190" rx="10" class="cv"/>
+  <text x="888" y="228" class="h" style="font-size:15px">Building the map</text>
+  <text x="888" y="250" class="s">cross-walker overlap (VLAD+LightGlue)</text>
+  <text x="888" y="268" class="s">fuse shared 3D points</text>
+  <text x="888" y="286" class="s">bundle adjustment, board-anchored</text>
+  <text x="888" y="304" class="s">floor plan: wall band → grid,</text>
+  <text x="888" y="322" class="s">  morphology, HoughLinesP</text>
+  <text x="888" y="340" class="s">route graph from walked paths</text>
+  <text x="888" y="358" class="s">coverage + frontiers →</text>
+  <text x="888" y="376" class="s">  coordinator (Hungarian)</text>
+
+  <rect x="598" y="410" width="260" height="184" rx="10" class="cv"/>
+  <text x="612" y="434" class="h" style="font-size:15px">Locating the visitor</text>
+  <text x="612" y="456" class="s">ALIKED → VLAD shortlist</text>
+  <text x="612" y="474" class="s">MNN to map points → PnP</text>
+  <text x="612" y="492" class="s">LightGlue verification if weak</text>
+  <text x="612" y="510" class="s">focal self-calibration</text>
+  <text x="612" y="528" class="s">confidence: inliers, error,</text>
+  <text x="612" y="546" class="s">  walking-speed plausibility</text>
+
+  <rect x="874" y="410" width="260" height="184" rx="10" class="agent"/>
+  <text x="888" y="434" class="h" style="font-size:15px">Guidance agent</text>
+  <text x="888" y="456" class="s">perceive → decide → act each frame</text>
+  <text x="888" y="474" class="s">guide | ask to pan | slow down</text>
+  <text x="888" y="492" class="s">reroute (fewer turns after 3)</text>
+  <text x="888" y="510" class="s">stop before stairs unless sure</text>
+  <text x="888" y="528" class="s">flag area for re-mapping</text>
+  <text x="888" y="546" class="s">hand off to a human helper</text>
+  <text x="888" y="564" class="s">every decision traced with reason</text>
+
+  <rect x="340" y="640" width="200" height="72" rx="10" class="box"/>
+  <text x="356" y="666" class="t">DynamoDB</text>
+  <text x="356" y="686" class="s">decision traces</text>
+  <rect x="580" y="640" width="200" height="72" rx="10" class="box"/>
+  <text x="596" y="666" class="t">S3</text>
+  <text x="596" y="686" class="s">walk frames (replayable)</text>
+  <rect x="820" y="640" width="330" height="72" rx="10" class="box"/>
+  <text x="836" y="666" class="t">CloudWatch</text>
+  <text x="836" y="686" class="s">logs, dashboard, budget alarm</text>
+
+  <!-- arrows -->
+  <path d="M270 170 H340" class="arrow"/>
+  <path d="M270 360 C 310 360, 300 190, 340 190" class="arrow"/>
+  <path d="M270 538 C 310 538, 300 200, 340 200" class="arrow"/>
+  <path d="M540 172 H580" class="arrow"/>
+  <path d="M858 300 H874" class="arrow"/>
+  <path d="M1004 394 V410" class="arrow"/>
+  <path d="M858 500 H874" class="arrow"/>
+  <path d="M440 610 V640" class="arrow"/>
+  <path d="M680 610 V640" class="arrow"/>
+  <path d="M985 610 V640" class="arrow"/>
+</svg>

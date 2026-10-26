@@ -182,9 +182,13 @@ class WalkerTracker:
                     kf.pid[kp] = pid
                     d.obs[pid].append((kf.id, int(kp)))
         # Triangulate against the last two keyframes (the older one gives a wider baseline).
-        partners = d.keyframes[-2:][::-1]
-        if len(d.xyz) < 300 and len(d.keyframes) > 2:
-            partners.append(d.keyframes[0])  # widest baseline while bootstrapping
+        # LightGlue is the expensive step (about 0.56 s per pair on Graviton4),
+        # so steady-state keyframes match only the previous keyframe; the
+        # bootstrap uses two more for a wider baseline.
+        if len(d.xyz) < 300:
+            partners = d.keyframes[-2:][::-1] + d.keyframes[:1] * (len(d.keyframes) > 2)
+        else:
+            partners = d.keyframes[-1:]
         for prev in partners:
             self._triangulate_pair(prev, kf)
         d.keyframes.append(kf)
