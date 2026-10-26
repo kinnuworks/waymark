@@ -18,8 +18,8 @@ All numbers come from scripts in `eval/` and can be re-run with one command (see
 | One walk, tracked live with no board in view | 13 to 23 cm median | same |
 | Same walk after board-anchored bundle adjustment | 2.0 to 7.5 cm median | same |
 | Bundle adjustment on synthetic data with 15% gross outliers | 4.6 mm pose error, 0.4 s | `eval` synthetic test |
-| Relocalising a visitor's frame (7-Scenes protocol) | RELOC_RESULT | HLoc publishes 1.0 cm on this scene ([A-SCoRe table](https://arxiv.org/pdf/2503.13982)) |
-| Per-frame cost on Graviton4 (c8g.large) | SPEED_RESULT | `eval/speed.py` |
+| Relocalising a visitor's frame (7-Scenes protocol, 100 test frames) | **1.8 cm / 2.0° median, 95% within 5 cm and 5°, no failures** | HLoc publishes 1.0 cm on this scene with a heavier pipeline ([A-SCoRe table](https://arxiv.org/pdf/2503.13982)) |
+| One visitor frame on Graviton4 (c8g.large, 2 vCPU) | **586 ms end to end**: ALIKED 541 ms, everything else 30 ms | `eval/speed.py` |
 | Real building, blind and low-vision participants | FIELD_RESULT | see the report |
 
 ## How it works

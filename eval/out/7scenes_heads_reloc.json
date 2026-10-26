@@ -1,0 +1,31 @@
+{
+ "reloc": {
+  "scene": "heads",
+  "map_keyframes": 100,
+  "map_points": 10506,
+  "map_build_s": 256.2,
+  "map_ba": {
+   "ok": true,
+   "keyframes": 100,
+   "points": 10562,
+   "observations": 42332,
+   "board_corners": 0,
+   "rms_before_px": 11.514,
+   "rms_after_px": 1.497,
+   "board_rms_before_px": 0.0,
+   "board_rms_after_px": 0.0,
+   "anchors": 100,
+   "points_removed": 56,
+   "iterations": 35,
+   "seconds": 21.73
+  },
+  "queries": 100,
+  "failures": 0,
+  "median_cm": 1.77,
+  "median_deg": 1.98,
+  "within_5cm_5deg_pct": 95.0,
+  "within_25cm_10deg_pct": 100.0,
+  "ms_median": 509.5,
+  "ms_p95": 680.6
+ }
+}

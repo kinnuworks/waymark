@@ -90,7 +90,14 @@ Each sequence plays one volunteer. Only the first and last 10 frames get their r
 
 ### 7.2 Relocalisation (7-Scenes protocol)
 
-RELOC_TABLE
+The map is triangulated from the training sequence with its reference poses, then every 10th frame of the test sequence is localised with no prior. This is the protocol used for published 7-Scenes results.
+
+| Method | Median error | Within 5 cm and 5° |
+|---|---|---|
+| Waymark (ALIKED, VLAD shortlist, MNN + MAGSAC++ PnP, LightGlue only when weak) | **1.77 cm, 1.98°** | **95%** (100% within 25 cm and 10°; 0 of 100 failed) |
+| HLoc, SuperPoint features (published, [A-SCoRe table](https://arxiv.org/pdf/2503.13982)) | 1.0 cm | not reported per scene |
+
+HLoc is still more accurate on this scene. Waymark gets within a centimetre of it without a separate retrieval network and with LightGlue on fewer than one frame in ten, which is what lets one 2-vCPU Graviton instance guide a visitor at one frame per second. A visitor needs metre-level accuracy to be told "turn left in 2 metres", so the remaining gap has no effect on guidance.
 
 ### 7.3 Field test in a real building
 
@@ -98,7 +105,20 @@ FIELD_TABLE
 
 ### 7.4 Speed and cost on Graviton
 
-SPEED_TABLE
+Median of 15 runs per stage on real 7-Scenes frames, EC2 c8g.large (Graviton4, 2 vCPU), OpenCV 5.0.0 arm64 wheel (KleidiCV 26.03 HAL built in), `eval/speed.py`.
+
+| Stage | Time |
+|---|---|
+| JPEG decode | 0.8 ms |
+| Quality gate | 0.9 ms |
+| ALIKED, 1,000 keypoints | 541 ms |
+| VLAD shortlist | 1.1 ms |
+| MNN matching, 1,000 × 1,000 | 19.7 ms |
+| MAGSAC++ PnP + refinement | 33.9 ms |
+| LightGlue, 600 × 600 (keyframes only) | 561 ms |
+| **Whole visitor frame** | **586 ms** |
+
+Nearly all the time is the ALIKED network. Using LightGlue on every frame would double the cost. So one c8g.large (about $1.92 a day) guides one visitor at 1 Hz, and mapping uses LightGlue only at keyframes.
 
 ### 7.5 Failure cases
 

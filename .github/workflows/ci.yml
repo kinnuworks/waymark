@@ -1,0 +1,19 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Models (ALIKED, LightGlue), SHA-256 checked
+        run: bash scripts/fetch_models.sh
+      - name: Install
+        run: uv sync --project server && uv pip install --python server/.venv/bin/python pytest httpx
+      - name: Tests
+        run: server/.venv/bin/python -m pytest -q tests

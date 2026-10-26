@@ -12,6 +12,12 @@ import numpy as np
 
 
 class Vocabulary:
+    def __getstate__(self):
+        return {"centers": self.centers}
+
+    def __setstate__(self, state):
+        self.__init__(state["centers"])
+
     def __init__(self, centers: np.ndarray):
         self.centers = centers.astype(np.float32)
         self._matcher = cv2.BFMatcher(cv2.NORM_L2)
