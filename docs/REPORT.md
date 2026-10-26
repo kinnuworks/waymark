@@ -78,6 +78,20 @@ Every decision is stored with what the agent saw, what it decided and why, and s
 
 ## 7. Evaluation
 
+### 7.0 Whole system replay
+
+`eval/system_replay.py` drives the real HTTP API the way phones do, on the deployed Graviton instance. It uses real indoor video (7-Scenes "heads", two sequences as two volunteers) and renders a virtual ChArUco board onto a wall of the room in every frame where the real camera would have seen it. Ground-truth poses are used only to draw the board and to score the output.
+
+| Step | Result |
+|---|---|
+| Lens calibration from 8 board views, per phone | 0.22 and 0.30 px RMS |
+| Live tracking error while walking (median) | 2.7 cm and 0.9 cm |
+| Build (merge + board-anchored adjustment) | 39 overlaps verified, 1,421 points fused, walkers' disagreement 8 mm → 4 mm, 104 s |
+| Visitor (third pass, no board, no poses) | 92 of 100 frames confidently located; floor-position error 1.9 cm median, 5.3 cm 90th percentile; 585 ms per frame |
+| Agent behaviour | "Located. You are near Bookshelf." → arrived at "Door to the corridor" with the side named; asked for a slow pan on 8 weak frames and asked the visitor to stop once |
+
+Failure found and fixed here: after arriving, the agent kept repeating the arrival message as the side changed between "ahead" and "right". It now stays quiet once arrived.
+
 ### 7.1 Mapping and merging (Microsoft 7-Scenes, "heads")
 
 Each sequence plays one volunteer. Only the first and last 10 frames get their reference pose, standing in for the board at the start and end of a walk. Everything else is tracked.

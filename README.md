@@ -14,6 +14,7 @@ All numbers come from scripts in `eval/` and can be re-run with one command (see
 
 | What was measured | Result | Data |
 |---|---|---|
+| **Whole system, through the live HTTP API on Graviton:** two volunteers calibrate, walk and mark places; the map is built; a visitor is guided | **visitor located to 1.9 cm median (5.3 cm at the 90th percentile), 92% of frames confidently located, 585 ms per frame** | Real 7-Scenes video with a virtual entrance board rendered at a fixed spot (`eval/system_replay.py`); nothing in the pipeline sees the ground truth |
 | Two walkers merged into one map: keyframe position error | **1.2 cm median, 4.2 cm worst** | Microsoft 7-Scenes, two sequences as two walkers, ground truth from the dataset |
 | One walk, tracked live with no board in view | 13 to 23 cm median | same |
 | Same walk after board-anchored bundle adjustment | 2.0 to 7.5 cm median | same |

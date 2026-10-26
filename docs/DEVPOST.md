@@ -2,7 +2,7 @@
 
 **Project name:** Waymark
 
-**Tagline:** Two volunteers walk a building with their phones for 15 minutes. After that, a blind visitor can be guided through it by voice. OpenCV 5 on AWS Graviton.
+**Tagline:** Two volunteers walk a building with their phones for 15 minutes. After that, a blind visitor can be guided through it by voice, located to 2 cm.
 
 **Built with:** opencv, opencv5, aliked, lightglue, python, fastapi, numpy, scipy, javascript, html5, aws, amazon-ec2, aws-graviton, amazon-api-gateway, amazon-dynamodb, amazon-s3, amazon-cloudwatch, aws-cdk, aws-systems-manager
 
