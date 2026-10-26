@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -37,8 +38,8 @@ from waymark.vision import geometry  # noqa: E402
 from waymark.vision.board import BoardSpec  # noqa: E402
 from waymark.vision.features import extractor, strong_matcher  # noqa: E402
 
-DATA = ROOT / "eval" / "data" / "7scenes"
-OUT = ROOT / "eval" / "out"
+DATA = Path(os.environ.get("SEVENSCENES", ROOT / "eval" / "data" / "7scenes"))
+OUT = Path(os.environ.get("WAYMARK_EVAL", ROOT / "eval" / "out"))
 # 7-Scenes RGB intrinsics as used by DSAC*, HLoc and most relocalisation work.
 K = np.array([[525.0, 0, 320.0], [0, 525.0, 240.0], [0, 0, 1]])
 

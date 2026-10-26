@@ -37,7 +37,8 @@ def main():
     args = ap.parse_args()
     reg = Registry()
     b = reg.create(f"Sample room (Microsoft 7-Scenes '{args.scene}', replayed)", 1.2)
-    seqs = sorted(int(p.name.split("-")[1]) for p in (ROOT / "eval/data/7scenes" / args.scene).glob("seq-*") if p.is_dir())
+    from sevenscenes import DATA
+    seqs = sorted(int(p.name.split("-")[1]) for p in (DATA / args.scene).glob("seq-*") if p.is_dir())
     walkers = seqs[:2]
     for k, s in enumerate(walkers):
         w = b.add_walker(f"Volunteer {'AB'[k]}")

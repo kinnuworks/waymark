@@ -17,6 +17,7 @@ else
   sudo -u waymark -H env GIT_TERMINAL_PROMPT=0 git pull --ff-only
   sudo -u waymark -H bash scripts/fetch_models.sh
   sudo -u waymark -H uv sync --project server
+  systemctl daemon-reload
   systemctl restart waymark
 fi
 echo "commit: $(git -C /opt/waymark log -1 --format='%h %s')"
