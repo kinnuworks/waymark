@@ -220,7 +220,7 @@ def main():
         print(json.dumps(report["walkers"][wid]), flush=True)
 
     t0 = time.time()
-    build = cl.post(f"/api/buildings/{bid}/build")
+    build = cl.post(f"/api/buildings/{bid}/build?wait=1")
     report["build"] = build.get("stats")
     report["build_seconds"] = round(time.time() - t0, 1)
     m = cl.get(f"/api/buildings/{bid}/map")

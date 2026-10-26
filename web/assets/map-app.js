@@ -537,9 +537,19 @@ qs('#build-btn').addEventListener('click', async () => {
   btn.disabled = true;
   status.textContent = 'Building the map. This can take a few minutes; keep this page open.';
   try {
-    const r = await api.post(`/buildings/${S.building.id}/build`, {}, { timeout: 15 * 60 * 1000 });
+    // The build runs on the server in the background; poll until it finishes.
+    await api.post(`/buildings/${S.building.id}/build`, {});
+    let r = { state: 'building' };
+    const started = Date.now();
+    while (r.state === 'building' && Date.now() - started < 15 * 60 * 1000) {
+      await new Promise((res) => setTimeout(res, 3000));
+      try { r = await api.get(`/buildings/${S.building.id}/build`, { retries: 1 }); } catch { /* keep polling */ }
+      if (r.state === 'building') status.textContent = `Building the map: ${Math.round((Date.now() - started) / 1000)} s so far. Keep this page open.`;
+    }
+    if (r.state === 'building') throw new Error('it is still running after 15 minutes. Check the helper console later.');
     status.textContent = r.ok === false ? 'The build finished with problems. See the numbers below.' : 'Map built. Visitors can now use this building.';
-    const stats = r.stats || {};
+    // Show only the plain numbers and words, not nested details.
+    const stats = Object.fromEntries(Object.entries(r.stats || {}).filter(([, v]) => v !== null && typeof v !== 'object'));
     const el = qs('#build-stats');
     el.hidden = !Object.keys(stats).length;
     el.innerHTML = Object.entries(stats).map(([k, v]) =>

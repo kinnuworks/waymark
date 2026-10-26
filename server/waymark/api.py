@@ -201,9 +201,47 @@ def coordinator(bid: str):
     return _building(bid).coordinator()
 
 
+_builds: dict[str, dict] = {}
+
+
 @app.post("/api/buildings/{bid}/build")
-def build(bid: str):
-    return _building(bid).build()
+def build(bid: str, wait: bool = False):
+    """Start a map build in the background (a build takes longer than API Gateway's 30 s limit).
+
+    Poll GET /api/buildings/{bid}/build for the result. `?wait=1` builds inline (tests, scripts).
+    """
+    b = _building(bid)
+    if wait:
+        return b.build()
+    job = _builds.get(bid)
+    if job and job["state"] == "building":
+        return {"ok": True, "state": "building", "started": job["started"]}
+    job = {"state": "building", "started": time.time(), "result": None}
+    _builds[bid] = job
+
+    def run():
+        try:
+            job["result"] = b.build()
+            job["state"] = "done" if job["result"].get("ok") else "error"
+        except Exception as e:  # report, don't crash the worker
+            job["state"], job["result"] = "error", {"ok": False, "reason": str(e)}
+        job["finished"] = time.time()
+
+    import threading
+    threading.Thread(target=run, daemon=True).start()
+    return {"ok": True, "state": "building", "started": job["started"]}
+
+
+@app.get("/api/buildings/{bid}/build")
+def build_status(bid: str):
+    _building(bid)
+    job = _builds.get(bid)
+    if job is None:
+        return {"state": "idle"}
+    out = {"state": job["state"], "started": job["started"], "finished": job.get("finished")}
+    if job["result"] is not None:
+        out.update(json.loads(json.dumps(job["result"], default=float)))
+    return out
 
 
 @app.get("/api/buildings/{bid}/map")
