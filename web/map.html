@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en" data-accent="amber">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Waymark mapping</title>
+<meta name="description" content="Volunteer mapping app: walk a building with your phone to build a Waymark map.">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0B0B0D" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231D1D1F'/%3E%3Cpath d='M10 25c0-5 12-5 12-10s-6-4-6-4' fill='none' stroke='%23F7A028' stroke-width='2.6' stroke-linecap='round' stroke-dasharray='0.1 4.4'/%3E%3Ccircle cx='16' cy='9' r='3.6' fill='%23F7A028'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script src="dev-mock.js"></script>
+</head>
+<body>
+<div class="app">
+  <header class="appbar">
+    <a class="appbar__brand" href="index.html">
+      <svg class="app-icon" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#1D1D1F"/><path d="M10 25c0-5 12-5 12-10s-6-4-6-4" fill="none" stroke="#F7A028" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="0.1 4.4"/><circle cx="16" cy="9" r="3.6" fill="#F7A028"/></svg>
+      <span>Waymark</span>
+    </a>
+    <span class="appbar__title">Mapping</span>
+    <div class="appbar__end">
+      <button class="btn btn-ghost btn-sm" id="voice-toggle" type="button" aria-pressed="true">Voice on</button>
+    </div>
+  </header>
+
+  <main class="app-main" id="main">
+    <ol class="steps" aria-label="Progress">
+      <li data-step="building" aria-current="step">Building</li>
+      <li data-step="calib">Camera</li>
+      <li data-step="map">Walk</li>
+    </ol>
+
+    <div class="callout callout--bad" id="env-error" role="alert" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+      <span></span>
+    </div>
+
+    <!-- Step 1: building -->
+    <section id="step-building" class="stack-24" aria-labelledby="h-building">
+      <div>
+        <h1 id="h-building">Map a building</h1>
+        <p class="lead">Each volunteer walks the floor for about 15 minutes. Start at the printed board by the entrance and the server will line up your walk with everyone else's.</p>
+      </div>
+
+      <div class="callout" id="resume" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+        <div style="flex:1">
+          <p id="resume-text">You have a walk in progress.</p>
+          <div class="row" style="margin-top:10px">
+            <button class="btn btn-ink btn-sm" id="resume-btn" type="button">Continue that walk</button>
+            <button class="btn btn-ghost btn-sm" id="resume-forget" type="button">Start fresh</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="walker-name">Your first name</label>
+        <input class="input" id="walker-name" autocomplete="given-name" autocapitalize="words" maxlength="40" placeholder="For example, Priya">
+        <span class="hint">Saved with your walk so the team can tell the walks apart.</span>
+      </div>
+
+      <div>
+        <div class="row row--between" style="margin-bottom:10px">
+          <h2>Join a building</h2>
+          <button class="btn btn-ghost btn-sm" id="refresh-buildings" type="button">Refresh</button>
+        </div>
+        <ul class="list" id="building-list" aria-live="polite" aria-busy="true">
+          <li class="t-small">Loading buildings…</li>
+        </ul>
+      </div>
+
+      <form class="card stack-16" id="new-building" novalidate>
+        <h2>Or add a new building</h2>
+        <div class="field">
+          <label for="b-name">Building name</label>
+          <input class="input" id="b-name" name="name" required maxlength="80" autocomplete="off" placeholder="For example, Central Library, ground floor">
+        </div>
+        <div class="field">
+          <label for="b-height">Board height in metres</label>
+          <input class="input" id="b-height" name="board_height_m" type="number" inputmode="decimal" min="0.3" max="2.5" step="0.01" value="1.20" required>
+          <span class="hint">Measure from the floor to the centre of the printed board.</span>
+        </div>
+        <div class="row">
+          <button class="btn btn-ink" type="submit">Add building</button>
+          <a class="btn btn-outline" href="/api/board.png" download="waymark-board.png">Get the board to print</a>
+        </div>
+        <p class="t-small" id="new-building-msg" role="status"></p>
+      </form>
+    </section>
+
+    <!-- Step 2: optional calibration -->
+    <section id="step-calib" class="stack-24" aria-labelledby="h-calib" hidden>
+      <div>
+        <h1 id="h-calib">Calibrate your camera</h1>
+        <p class="lead">Optional, and it takes under a minute. Hold the phone one to two metres from the board and show it from several angles: straight on, then tilted left, right, up and down. If you skip this, the server estimates the focal length instead.</p>
+      </div>
+      <div class="video-box">
+        <video id="calib-video" playsinline muted></video>
+        <div class="video-box__overlay"><span class="pill" id="calib-found" data-tone="idle">Camera off</span><span class="pill" id="calib-count" data-tone="idle">0 views</span></div>
+      </div>
+      <p class="say-line" id="calib-status" role="status" aria-live="polite"><small>Status</small>Tap Start calibration when you are in front of the board.</p>
+      <div class="row">
+        <button class="btn btn-candy btn-lg" id="calib-start" type="button">Start calibration</button>
+        <button class="btn btn-outline btn-lg" id="calib-skip" type="button">Skip</button>
+      </div>
+    </section>
+
+    <!-- Step 3: mapping -->
+    <section id="step-map" class="stack-16" aria-labelledby="h-map" hidden>
+      <div class="row row--between">
+        <div>
+          <h1 id="h-map" style="font-size:26px">Walking <span id="map-building-name"></span></h1>
+          <p class="t-small" id="map-walker-line"></p>
+        </div>
+      </div>
+
+      <div id="start-box" class="card stack-16">
+        <p>Stand in front of the entrance board, hold the phone upright at chest height with the camera facing the board, then tap Start.</p>
+        <button class="btn btn-candy btn-lg btn-block" id="map-start" type="button">Start walking</button>
+      </div>
+
+      <div class="video-box video-box--small" id="map-video-box" hidden>
+        <video id="map-video" playsinline muted></video>
+        <div class="video-box__overlay">
+          <span class="pill" id="map-state" data-tone="idle">Starting</span>
+          <span class="pill" id="map-quality" data-tone="idle" hidden>Image OK</span>
+        </div>
+      </div>
+
+      <p class="say-line" id="map-say" role="status" aria-live="polite"><small>Waymark says</small><span>Point the camera at the entrance board.</span></p>
+      <p class="say-line" id="map-assign" hidden><small>Where to go next</small><span></span></p>
+
+      <div class="stats" aria-label="Walk statistics">
+        <div class="stat"><span class="stat__label">Coverage</span><span class="stat__value" id="st-coverage">–</span></div>
+        <div class="stat"><span class="stat__label">Keyframes</span><span class="stat__value" id="st-keyframes">0</span></div>
+        <div class="stat"><span class="stat__label">3D points</span><span class="stat__value" id="st-points">0</span></div>
+        <div class="stat"><span class="stat__label">Places</span><span class="stat__value" id="st-places">0</span></div>
+      </div>
+
+      <div class="map-box map-box--mini">
+        <canvas id="mini-map" role="img" aria-label="Map of the walks so far"></canvas>
+      </div>
+      <div class="map-legend" id="map-legend"></div>
+
+      <div class="action-bar">
+        <button class="btn btn-candy btn-mark" id="mark-btn" type="button" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+          Mark this place
+        </button>
+        <button class="btn btn-outline" id="pause-btn" type="button" disabled>Pause</button>
+        <button class="btn btn-outline" id="finish-btn" type="button" disabled>Finish my walk</button>
+      </div>
+    </section>
+
+    <!-- After the walk -->
+    <section id="step-done" class="stack-24" aria-labelledby="h-done" hidden>
+      <div>
+        <h1 id="h-done">Walk finished. Thank you.</h1>
+        <p class="lead" id="done-summary">Your walk has been sent to the server.</p>
+      </div>
+      <div class="row">
+        <button class="btn btn-outline" id="new-walk" type="button">Start another walk</button>
+        <a class="btn btn-ghost" id="view-console" href="helper.html">View in helper console</a>
+      </div>
+    </section>
+
+    <!-- Builder: shown on the device that created the building, or with ?builder=1 -->
+    <section class="card stack-16" id="builder" style="margin-top:24px" hidden aria-labelledby="h-builder">
+      <div>
+        <h2 id="h-builder">Build the map</h2>
+        <p class="t-small" style="margin-top:4px">Run this once every walker has finished. The server runs bundle adjustment, merges the walks, and draws the floor plan and route graph. It can take a few minutes.</p>
+      </div>
+      <button class="btn btn-ink" id="build-btn" type="button">Build map</button>
+      <p class="t-small" id="build-status" role="status" aria-live="polite"></p>
+      <div class="stats" id="build-stats" hidden></div>
+    </section>
+  </main>
+</div>
+
+<dialog class="sheet" id="mark-sheet" aria-labelledby="h-mark">
+  <form class="sheet__body stack-16" id="mark-form" method="dialog">
+    <div>
+      <h2 id="h-mark">Mark this place</h2>
+      <p class="t-small" style="margin-top:4px">Saved at the spot where you are standing now.</p>
+    </div>
+    <fieldset style="border:0;margin:0;padding:0">
+      <legend class="label" style="font-size:14.5px;font-weight:600;margin-bottom:8px">What is it?</legend>
+      <div class="chips" id="kind-chips" role="radiogroup" aria-label="Kind of place"></div>
+    </fieldset>
+    <div class="field">
+      <label for="mark-label">Name</label>
+      <input class="input" id="mark-label" maxlength="60" autocomplete="off" autocapitalize="sentences" enterkeyhint="done" placeholder="For example, Room 104 or Front desk">
+      <span class="hint">To dictate, tap the microphone on your keyboard.</span>
+    </div>
+    <div class="row">
+      <button class="btn btn-candy btn-lg" id="mark-save" type="submit" value="save">Save place</button>
+      <button class="btn btn-outline btn-lg" id="mark-cancel" type="button">Cancel</button>
+    </div>
+  </form>
+</dialog>
+
+<script type="module" src="assets/map-app.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+models/*.onnx
+data/
+eval/data/
+eval/out/raw/
+infra/cdk.out/
+node_modules/
+.DS_Store

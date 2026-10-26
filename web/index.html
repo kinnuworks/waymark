@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en" data-accent="amber">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Waymark: spoken indoor directions for blind and low-vision visitors</title>
+<meta name="description" content="Two volunteers map a public building with their phones in about 15 minutes. A blind or low-vision visitor's phone then gives spoken turn-by-turn directions on that map.">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0B0B0D" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231D1D1F'/%3E%3Cpath d='M10 25c0-5 12-5 12-10s-6-4-6-4' fill='none' stroke='%23F7A028' stroke-width='2.6' stroke-linecap='round' stroke-dasharray='0.1 4.4'/%3E%3Ccircle cx='16' cy='9' r='3.6' fill='%23F7A028'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script>document.documentElement.classList.add('js')</script>
+<script src="dev-mock.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav">
+  <div class="nav__bar">
+    <a class="nav__brand" href="index.html" aria-label="Waymark home">
+      <svg class="app-icon" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#1D1D1F"/><path d="M10 25c0-5 12-5 12-10s-6-4-6-4" fill="none" stroke="#F7A028" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="0.1 4.4"/><circle cx="16" cy="9" r="3.6" fill="#F7A028"/></svg>
+      Waymark
+    </a>
+    <nav class="nav__links" aria-label="Sections">
+      <a href="#how">How it works</a>
+      <a href="#try">Try it</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#results">Results</a>
+      <a href="#safety">Safety</a>
+    </nav>
+    <a class="btn btn-ink btn-sm" href="https://github.com/kinnuworks/waymark">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.08.63-1.33-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.6 9.6 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.69-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"/></svg>
+      GitHub
+    </a>
+  </div>
+</header>
+
+<main id="main">
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <span class="badge badge--dot">OpenCV AI Competition 2026, powered by AWS</span>
+      <h1>Spoken directions inside public buildings. <span class="t-muted">Mapped in a 15&#8209;minute walk.</span></h1>
+      <p class="lead">Two sighted volunteers walk a library, clinic or college floor with their phones. Waymark merges their walks into one measured map. A blind or low-vision visitor's phone then works out where it is every second and speaks turn-by-turn directions.</p>
+      <div class="cta-row">
+        <a class="btn btn-candy btn-lg" href="helper.html">Open the sample building</a>
+        <a class="btn btn-outline btn-lg" href="go.html">Try the guidance app</a>
+      </div>
+      <p class="trust"><span>Runs in the phone's browser</span><span>Nothing to install</span><span>Used alongside a cane or guide dog</span></p>
+    </div>
+
+    <div class="container hero__visual bleed">
+      <div class="stage" aria-hidden="true">
+        <div class="hero-stage">
+          <!-- Helper console mock -->
+          <div class="window">
+            <div class="window__bar"><div class="lights"><i></i><i></i><i></i></div><span class="window__title">Helper console · Hartley Library</span></div>
+            <div class="console-mock">
+              <svg class="plan-svg" viewBox="0 0 640 420" role="presentation">
+                <defs><pattern id="g" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="currentColor" stroke-opacity=".06"/></pattern></defs>
+                <rect width="640" height="420" fill="url(#g)" style="color:var(--ink)"/>
+                <g fill="none" stroke="var(--map-wall)" stroke-width="4" stroke-linecap="round">
+                  <path d="M40 390H140M180 390H600V30H40V390"/>
+                  <path d="M40 214H140M180 214H460M496 214H600"/>
+                  <path d="M40 166H100M140 166H260M300 166H380M420 166H600"/>
+                  <path d="M140 390V214M180 390V350M180 310V214M460 390V214M496 390V330M496 290V214M140 166V30M480 166V30"/>
+                </g>
+                <g stroke="#0072B2" stroke-width="2.5" fill="none" stroke-opacity=".75"><path d="M158 384V190H60V60H110V150H158"/></g>
+                <g stroke="#009E73" stroke-width="2.5" fill="none" stroke-opacity=".75"><path d="M164 384V194H400V50H360V190H570V320H500"/></g>
+                <path d="M160 370V190H400V100" fill="none" stroke="var(--map-route)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-opacity=".9"/>
+                <g font-family="Inter,system-ui,sans-serif" font-size="12" font-weight="600" fill="var(--ink)">
+                  <circle cx="400" cy="92" r="11" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/><text x="400" y="96" text-anchor="middle">R</text><text x="416" y="96">Reading room</text>
+                  <circle cx="80" cy="140" r="11" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/><text x="80" y="144" text-anchor="middle" font-size="9">WC</text><text x="96" y="130">Restrooms</text>
+                  <circle cx="280" cy="150" r="11" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/><text x="280" y="154" text-anchor="middle">L</text><text x="296" y="140">Lift</text>
+                  <circle cx="560" cy="190" r="11" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/><text x="560" y="194" text-anchor="middle" font-size="9">St</text><text x="530" y="176">Stairs</text>
+                  <circle cx="210" cy="340" r="11" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/><text x="210" y="344" text-anchor="middle">i</text><text x="226" y="344">Front desk</text>
+                </g>
+                <circle cx="250" cy="190" r="26" fill="var(--map-me)" fill-opacity=".14"/>
+                <path d="M276 190l-18-7v14z" fill="var(--map-me)"/>
+                <circle cx="250" cy="190" r="8" fill="var(--map-me)" stroke="var(--surface)" stroke-width="3"/>
+                                <rect x="140" y="386" width="40" height="7" rx="3" fill="var(--accent)"/>
+              </svg>
+              <div class="console-mock__side">
+                <div class="t-micro" style="font-weight:600;letter-spacing:.06em;text-transform:uppercase">Visitor</div>
+                <div><b>Guiding</b> to Reading room<br><span class="t-micro">16 m left · confidence 0.88</span></div>
+                <div class="t-micro" style="font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-top:6px">Example trace</div>
+                <div class="console-mock__row"><span class="t-mono">10:41:07</span><div><b>Low confidence</b><br><span>31 inliers. Asked the visitor to pan slowly.</span></div></div>
+                <div class="console-mock__row"><span class="t-mono">10:41:09</span><div><b>Guiding</b><br><span>162 inliers. "In 4 metres, turn left."</span></div></div>
+                <div class="console-mock__row"><span class="t-mono">10:41:14</span><div><b>Guiding</b><br><span>Corner reached. "Turn left now."</span></div></div>
+              </div>
+            </div>
+          </div>
+          <!-- Guidance app mock -->
+          <div class="phone">
+            <div class="phone__screen">
+              <div class="phone__status"><span>10:41</span><span>5G</span></div>
+              <div class="phone__body guide-mock">
+                <div class="guide-mock__state">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+                  Guiding to Reading room
+                </div>
+                <div class="guide-mock__say">In 4 metres, turn left.</div>
+                <div class="guide-mock__meta">16 metres to go. Next: left turn.</div>
+                <div class="guide-mock__grid">
+                  <div class="guide-mock__btn">Repeat</div>
+                  <div class="guide-mock__btn">Where am I?</div>
+                </div>
+                <div class="guide-mock__btn guide-mock__btn--primary">Call a helper</div>
+                <div class="guide-mock__btn">End</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="section section--alt after-bleed" id="how">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow"><span class="dot"></span>How it works</span>
+        <h2>Two walks make the map. One phone follows it.</h2>
+        <p class="lead">A printed ChArUco board at the entrance gives every walker the same origin and a metric scale, so separate walks line up without anyone measuring by hand.</p>
+      </div>
+      <div class="grid grid-3">
+        <div class="tile reveal" style="--i:0">
+          <span class="num-tile">1</span>
+          <div><h3 class="t-title">Map the building</h3><p>Fix the board at the entrance, 1.2 m up. Two volunteers start there and walk the floor for about 15 minutes, marking rooms, doors, stairs, lifts and exits as they pass them. The server splits the unmapped areas between them.</p></div>
+        </div>
+        <div class="tile reveal" style="--i:1">
+          <span class="num-tile">2</span>
+          <div><h3 class="t-title">Build the map</h3><p>The server refines both walks with bundle adjustment, merges them where they overlap, and draws a floor plan with a route graph between the marked places.</p></div>
+        </div>
+        <div class="tile reveal" style="--i:2">
+          <span class="num-tile">3</span>
+          <div><h3 class="t-title">Guide a visitor</h3><p>The visitor picks a destination. Every second the phone sends a camera frame. The server finds the phone's position and heading on the map and replies with the next spoken instruction.</p></div>
+        </div>
+      </div>
+
+      <div class="split" style="margin-top:clamp(72px,9vw,112px)">
+        <div>
+          <span class="eyebrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="5"/></svg>
+            Confidence agent
+          </span>
+          <h3>When it isn't sure, it says so.</h3>
+          <p class="lead">An agent on the server checks localisation confidence on every frame. Each decision goes into a trace with what it saw and why it acted, and the helper console shows that trace live.</p>
+          <ul style="display:grid;gap:10px;margin:22px 0 0;padding:0;list-style:none">
+            <li class="callout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--accent-ink)"><path d="M2 12h4M18 12h4M9 6l-3 6 3 6M15 6l3 6-3 6"/></svg><span>If the camera sees too little to match, it asks the visitor to pan the phone slowly.</span></li>
+            <li class="callout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--accent-ink)"><path d="M6 20V8a4 4 0 0 1 4-4h8"/><path d="M15 1l3 3-3 3"/></svg><span>It prefers a route with fewer turns, even when that route is a little longer.</span></li>
+            <li class="callout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--accent-ink)"><path d="M4 20h4v-4h4v-4h4V8h4"/></svg><span>Near stairs it asks the visitor to stop until the position is confirmed.</span></li>
+            <li class="callout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--accent-ink)"><circle cx="9" cy="7" r="4"/><path d="M2 21v-1a6 6 0 0 1 6-6h2a6 6 0 0 1 6 6v1M19 8v6M16 11h6"/></svg><span>If it still can't place the visitor, it asks a human helper to come over.</span></li>
+          </ul>
+        </div>
+        <div class="stage stage--soft" aria-hidden="true">
+          <div class="window">
+            <div class="window__bar"><div class="lights"><i></i><i></i><i></i></div><span class="window__title">Example decision trace</span></div>
+            <ol class="timeline" style="padding:6px 16px;max-height:none">
+              <li><time>10:41:05</time><div><span class="tl-state">Guiding</span><dl><dt>Saw</dt><dd>148 inliers, confidence 0.86</dd><dt>Did</dt><dd>"Walk straight ahead for 9 metres."</dd><dt>Why</dt><dd>Next instruction changed.</dd></dl></div></li>
+              <li><time>10:41:07</time><div><span class="tl-state">Low confidence</span><dl><dt>Saw</dt><dd>31 inliers, confidence 0.31, blank wall ahead</dd><dt>Did</dt><dd>"Pan the phone slowly left and right."</dd><dt>Why</dt><dd>A wrong fix here could point the visitor into the wrong corridor.</dd></dl></div></li>
+              <li><time>10:41:09</time><div><span class="tl-state">Guiding</span><dl><dt>Saw</dt><dd>162 inliers, confidence 0.88</dd><dt>Did</dt><dd>"In 4 metres, turn left."</dd><dt>Why</dt><dd>Position confirmed again.</dd></dl></div></li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Try it -->
+  <section class="section" id="try">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow"><span class="dot"></span>Try it</span>
+        <h2>Try it in 30 seconds.</h2>
+        <p class="lead">The sample building is a library floor that two volunteers have already mapped.</p>
+      </div>
+      <div class="grid grid-3">
+        <div class="card reveal" style="--i:0;display:flex;flex-direction:column;gap:12px">
+          <span class="num-tile">1</span>
+          <h3 class="t-title">Open the sample building</h3>
+          <p class="t-small">On a laptop, open the helper console. You'll see the floor plan, the route graph, each volunteer's walk in its own colour, and any visit in progress.</p>
+          <a class="btn btn-candy" href="helper.html" style="margin-top:auto;align-self:flex-start">Open helper console</a>
+        </div>
+        <div class="card reveal" style="--i:1;display:flex;flex-direction:column;gap:12px">
+          <span class="num-tile">2</span>
+          <h3 class="t-title">Open the guidance app on a phone</h3>
+          <p class="t-small">Type this address into Safari or Chrome on a phone. Pick the sample building, choose a place, and tap Start guidance. It is designed for VoiceOver and TalkBack, and works without them too.</p>
+          <div class="url-box"><span id="go-url">/go.html</span></div>
+          <a class="btn btn-outline" href="go.html" style="margin-top:auto;align-self:flex-start">Open guidance app</a>
+        </div>
+        <div class="card reveal" style="--i:2;display:flex;flex-direction:column;gap:12px">
+          <span class="num-tile">3</span>
+          <h3 class="t-title">Map a space yourself</h3>
+          <p class="t-small">Print the entrance board on A4, fix it to a wall 1.2 m up, and walk with the mapping app. A second phone can join the same building at any time.</p>
+          <div class="row" style="margin-top:auto">
+            <a class="btn btn-outline" href="map.html">Open mapping app</a>
+            <a class="btn btn-ghost" href="/api/board.png" download="waymark-board.png">Print the board</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Architecture -->
+  <section class="section section--alt" id="architecture">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow"><span class="dot"></span>Architecture</span>
+        <h2>How a frame travels.</h2>
+        <p class="lead">Phones do no vision work. They send a JPEG about once a second and speak the reply, so any recent phone browser can take part.</p>
+      </div>
+      <div class="arch">
+        <div class="arch__node reveal" style="--i:0">
+          <span class="eyebrow">Client</span>
+          <h3>Phone browser</h3>
+          <p>Rear camera, compass and speech. The mapping app is for volunteers; the guidance app is for visitors.</p>
+          <span class="arch__flow">JPEG, 960 px, ~1 per second <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </div>
+        <div class="arch__node reveal" style="--i:1">
+          <span class="eyebrow">Edge</span>
+          <h3>CloudFront</h3>
+          <p>HTTPS for the camera, the static web app, and the API path forwarded to the worker.</p>
+          <span class="arch__flow">/api <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </div>
+        <div class="arch__node arch__node--main reveal" style="--i:2">
+          <span class="eyebrow">Compute</span>
+          <h3>Graviton worker running OpenCV 5</h3>
+          <ul>
+            <li>ALIKED features and LightGlue matching</li>
+            <li>solvePnP with MAGSAC for camera pose</li>
+            <li>Triangulation and bundle adjustment</li>
+            <li>Merging several walkers into one map</li>
+            <li>Floor plan and route graph</li>
+            <li>Guidance agent that watches confidence</li>
+          </ul>
+        </div>
+        <div class="arch__stores">
+          <div class="arch__node reveal" style="--i:3">
+            <span class="eyebrow">Trace</span>
+            <h3>DynamoDB</h3>
+            <p>Every agent decision for every walk and visit.</p>
+          </div>
+          <div class="arch__node reveal" style="--i:4">
+            <span class="eyebrow">Storage</span>
+            <h3>S3</h3>
+            <p>Keyframes, maps and rendered floor plans.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Results -->
+  <section class="section" id="results">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow"><span class="dot"></span>Results</span>
+        <h2>Checked against a tape measure.</h2>
+        <p class="lead">These tables load live from the latest evaluation run. During test visits an evaluator marks each tape-measured checkpoint as the visitor reaches it, so Waymark's position can be compared with the true spot.</p>
+      </div>
+      <div class="results" id="results-body" aria-live="polite" aria-busy="true">
+        <div class="empty">Loading results…</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Safety -->
+  <section class="section section--alt" id="safety">
+    <div class="container">
+      <div class="safety">
+        <span class="eyebrow"><span class="dot"></span>Safety</span>
+        <h2 class="t-h3" style="margin-top:14px">Waymark works alongside a cane or guide dog. It never replaces them.</h2>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>It gives directions on a map of fixed walls, doors and stairs. People, trolleys, open doors and wet floors are not on that map, so the cane or dog still does that job.</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>When its confidence drops it says so out loud and asks the visitor to wait or pan the phone.</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Near stairs it asks the visitor to stop until the position is confirmed.</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>A Call a helper button is on screen at all times, and the agent calls one itself when it cannot place the visitor.</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>If the phone loses its connection to the server, it tells the visitor to stop and wait.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <a class="nav__brand" href="index.html">
+      <svg class="app-icon" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#1D1D1F"/><path d="M10 25c0-5 12-5 12-10s-6-4-6-4" fill="none" stroke="#F7A028" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="0.1 4.4"/><circle cx="16" cy="9" r="3.6" fill="#F7A028"/></svg>
+      Waymark
+    </a>
+    <nav aria-label="Footer">
+      <a href="https://github.com/kinnuworks/waymark">GitHub</a>
+      <a href="https://github.com/kinnuworks/waymark/blob/main/docs/REPORT.md">Technical report</a>
+      <a href="map.html">Mapping app</a>
+      <a href="go.html">Guidance app</a>
+      <a href="helper.html">Helper console</a>
+    </nav>
+    <div style="display:grid;gap:8px;justify-items:start">
+      <span>An entry to the OpenCV AI Competition 2026, powered by AWS.</span>
+      <div class="health" id="health" aria-label="Server status"><span class="chip chip--soft">Checking server…</span></div>
+    </div>
+  </div>
+</footer>
+
+<script type="module" src="assets/index.js"></script>
+<script>
+if('IntersectionObserver' in window){
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{rootMargin:'0px 0px -8% 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+}else document.querySelectorAll('.reveal').forEach(el=>el.classList.add('in'));
+</script>
+</body>
+</html>

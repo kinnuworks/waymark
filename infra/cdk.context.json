@@ -1,0 +1,59 @@
+{
+  "vpc-provider:account=414997933603:filter.isDefault=true:region=us-east-1:returnAsymmetricSubnets=true": {
+    "vpcId": "vpc-0be623be7155b7bb0",
+    "vpcCidrBlock": "172.31.0.0/16",
+    "ownerAccountId": "414997933603",
+    "availabilityZones": [],
+    "subnetGroups": [
+      {
+        "name": "Public",
+        "type": "Public",
+        "subnets": [
+          {
+            "subnetId": "subnet-0f9b41cd99e86f200",
+            "cidr": "172.31.0.0/20",
+            "availabilityZone": "us-east-1a",
+            "routeTableId": "rtb-057ffdbcc78d08a18"
+          },
+          {
+            "subnetId": "subnet-0710a83a35d89b0a8",
+            "cidr": "172.31.80.0/20",
+            "availabilityZone": "us-east-1b",
+            "routeTableId": "rtb-057ffdbcc78d08a18"
+          },
+          {
+            "subnetId": "subnet-03900415bb661fcfa",
+            "cidr": "172.31.16.0/20",
+            "availabilityZone": "us-east-1c",
+            "routeTableId": "rtb-057ffdbcc78d08a18"
+          },
+          {
+            "subnetId": "subnet-02ea527d5c05cb161",
+            "cidr": "172.31.32.0/20",
+            "availabilityZone": "us-east-1d",
+            "routeTableId": "rtb-057ffdbcc78d08a18"
+          },
+          {
+            "subnetId": "subnet-05cd32d8b30d7e590",
+            "cidr": "172.31.48.0/20",
+            "availabilityZone": "us-east-1e",
+            "routeTableId": "rtb-057ffdbcc78d08a18"
+          },
+          {
+            "subnetId": "subnet-0db848bda06051acd",
+            "cidr": "172.31.64.0/20",
+            "availabilityZone": "us-east-1f",
+            "routeTableId": "rtb-057ffdbcc78d08a18"
+          }
+        ]
+      }
+    ]
+  },
+  "cc-api-provider:account=414997933603:expectedMatchCount=exactly-one:propertiesToReturn.0=PrefixListId:propertyMatch.PrefixListName=com.amazonaws.global.cloudfront.origin-facing:region=us-east-1:typeName=AWS$:$:EC2$:$:PrefixList": [
+    {
+      "PrefixListId": "pl-3b927c52",
+      "Identifier": "pl-3b927c52"
+    }
+  ],
+  "ssm:account=414997933603:parameterName=/aws/service/canonical/ubuntu/server/24.04/stable/current/arm64/hvm/ebs-gp3/ami-id:region=us-east-1": "ami-09a93d801db0bafae"
+}

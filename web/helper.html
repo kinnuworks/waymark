@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en" data-accent="amber">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Waymark helper console</title>
+<meta name="description" content="Watch Waymark visits live, see the agent's decisions, and talk to a visitor.">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0B0B0D" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231D1D1F'/%3E%3Cpath d='M10 25c0-5 12-5 12-10s-6-4-6-4' fill='none' stroke='%23F7A028' stroke-width='2.6' stroke-linecap='round' stroke-dasharray='0.1 4.4'/%3E%3Ccircle cx='16' cy='9' r='3.6' fill='%23F7A028'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script src="dev-mock.js"></script>
+</head>
+<body>
+<div class="app">
+  <header class="appbar">
+    <a class="appbar__brand" href="index.html">
+      <svg class="app-icon" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#1D1D1F"/><path d="M10 25c0-5 12-5 12-10s-6-4-6-4" fill="none" stroke="#F7A028" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="0.1 4.4"/><circle cx="16" cy="9" r="3.6" fill="#F7A028"/></svg>
+      <span>Waymark</span>
+    </a>
+    <span class="appbar__title">Helper console</span>
+    <div class="appbar__end">
+      <span class="pill" id="conn" data-tone="idle">Connecting</span>
+    </div>
+  </header>
+
+  <main class="app-main app-main--wide" id="main">
+    <h1 class="sr-only">Helper console</h1>
+    <div id="help-banners" class="stack-16" style="margin-bottom:16px"></div>
+
+    <div class="console">
+      <!-- Left: building and visits -->
+      <div class="console__col">
+        <section class="card" aria-labelledby="h-b">
+          <h2 id="h-b">Building</h2>
+          <label class="sr-only" for="building-select">Building</label>
+          <select class="input" id="building-select"><option value="">Loading…</option></select>
+          <button class="btn btn-outline btn-sm btn-block" id="building-view-btn" type="button" style="margin-top:10px">Show building map</button>
+        </section>
+        <section class="card" aria-labelledby="h-v">
+          <div class="row row--between"><h2 id="h-v" style="margin:0">Visits</h2><span class="t-micro" id="visits-updated"></span></div>
+          <ul class="list" id="visit-list" style="margin-top:10px" aria-live="polite"><li class="t-small">Loading visits…</li></ul>
+        </section>
+      </div>
+
+      <!-- Middle: map -->
+      <div class="console__col">
+        <div class="row row--between">
+          <div>
+            <h2 id="view-title" style="margin:0;font-size:20px">Building map</h2>
+            <p class="t-small" id="view-sub"></p>
+          </div>
+          <label class="row t-small" style="gap:8px;cursor:pointer;min-height:44px">
+            <input type="checkbox" id="show-plan" checked style="width:18px;height:18px;accent-color:var(--accent-ink)"> Rendered floor plan
+          </label>
+        </div>
+        <div class="map-box">
+          <canvas id="map" role="img" aria-label="Building map"></canvas>
+        </div>
+        <div class="map-legend" id="legend"></div>
+      </div>
+
+      <!-- Right: visit details or building details -->
+      <div class="console__col console__col--right">
+        <section class="card" id="visit-panel" aria-labelledby="h-visit" hidden>
+          <h2 id="h-visit">Visitor</h2>
+          <dl class="kv" id="visit-kv"></dl>
+          <div style="margin-top:12px">
+            <div class="row row--between t-small"><span>Position confidence</span><span id="conf-text">–</span></div>
+            <div class="conf-bar" aria-hidden="true"><i id="conf-bar"></i></div>
+          </div>
+        </section>
+
+        <section class="card" id="say-panel" aria-labelledby="h-say" hidden>
+          <h2 id="h-say">Speak to the visitor</h2>
+          <form id="say-form" class="stack-16">
+            <div class="field">
+              <label class="sr-only" for="say-text">Message</label>
+              <textarea class="input" id="say-text" rows="3" maxlength="200" placeholder="For example: Stay where you are. I'm coming from the front desk."></textarea>
+              <span class="hint">Spoken on the visitor's phone with the next update, usually within a second or two.</span>
+            </div>
+            <div class="chips" id="quick-says">
+              <button class="chip" type="button">Stay where you are. I'm on my way.</button>
+              <button class="chip" type="button">You're doing fine. Keep going.</button>
+              <button class="chip" type="button">Stop. Someone is in front of you.</button>
+            </div>
+            <div class="row"><button class="btn btn-ink" type="submit">Send</button><span class="t-small" id="say-status" role="status"></span></div>
+          </form>
+        </section>
+
+        <section class="card" id="trace-panel" aria-labelledby="h-trace" hidden>
+          <h2 id="h-trace">Agent decisions</h2>
+          <p class="t-small" style="margin:-4px 0 8px">Newest first. What the agent saw, what it did, and why.</p>
+          <ol class="timeline" id="trace"></ol>
+        </section>
+
+        <section class="card" id="building-panel" aria-labelledby="h-bstats">
+          <h2 id="h-bstats">Map details</h2>
+          <dl class="kv" id="building-kv"><dt>Status</dt><dd>Choose a building</dd></dl>
+          <h2 style="margin-top:18px">Places</h2>
+          <ul class="list" id="poi-list" style="gap:4px"></ul>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+<script type="module" src="assets/helper-app.js"></script>
+</body>
+</html>

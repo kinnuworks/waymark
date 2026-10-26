@@ -1,0 +1,51 @@
+{
+ "walk": {
+  "scene": "heads",
+  "seq": 2,
+  "frames": 100,
+  "step": 10,
+  "anchored_frames": 20,
+  "states": {
+   "tracking": 86,
+   "rejected": 5,
+   "lost": 9
+  },
+  "keyframes": 46,
+  "points": 5144,
+  "tracked_frames": 66,
+  "live_tracking_error": {
+   "mean_m": 0.1861,
+   "median_m": 0.1349,
+   "rmse_m": 0.2259,
+   "max_m": 0.4191
+  },
+  "keyframe_error_before_ba": {
+   "mean_m": 0.123,
+   "median_m": 0.0936,
+   "rmse_m": 0.1757,
+   "max_m": 0.3889
+  },
+  "keyframe_error_after_ba": {
+   "mean_m": 0.1231,
+   "median_m": 0.0937,
+   "rmse_m": 0.1757,
+   "max_m": 0.3891
+  },
+  "ba": {
+   "ok": true,
+   "keyframes": 46,
+   "points": 5151,
+   "observations": 15937,
+   "board_corners": 0,
+   "rms_before_px": 15.196,
+   "rms_after_px": 14.904,
+   "board_rms_before_px": 0.0,
+   "board_rms_after_px": 0.0,
+   "anchors": 12,
+   "points_removed": 7,
+   "iterations": 40,
+   "seconds": 8.52
+  },
+  "ms_per_frame": 2691.3
+ }
+}

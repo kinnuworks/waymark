@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Waymark guidance</title>
+<meta name="description" content="Spoken indoor directions for blind and low-vision visitors.">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231D1D1F'/%3E%3Cpath d='M10 25c0-5 12-5 12-10s-6-4-6-4' fill='none' stroke='%23F7A028' stroke-width='2.6' stroke-linecap='round' stroke-dasharray='0.1 4.4'/%3E%3Ccircle cx='16' cy='9' r='3.6' fill='%23F7A028'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script src="dev-mock.js"></script>
+</head>
+<body class="go">
+<!-- Screen reader announcements. Used when "Screen reader" mode is chosen, so lines are not heard twice. -->
+<div class="sr-only" id="live-polite" aria-live="polite" aria-atomic="true"></div>
+<div class="sr-only" id="live-assertive" aria-live="assertive" aria-atomic="true"></div>
+
+<main class="go-main" id="main">
+  <header class="go-head">
+    <h1 class="go-title" id="go-title">Waymark guidance</h1>
+  </header>
+
+  <div class="g-alert" id="alert" role="alert" hidden><strong id="alert-title">Problem</strong><span id="alert-text"></span></div>
+
+  <!-- Screen 1: building -->
+  <section id="scr-building" aria-labelledby="h-building">
+    <p class="go-p">Spoken directions inside a mapped building. Keep using your cane or guide dog as you normally would.</p>
+
+    <h2 id="h-voice">How should directions be spoken?</h2>
+    <p class="go-p" id="voice-help">If you use VoiceOver or TalkBack, choose Screen reader so you do not hear every direction twice.</p>
+    <div class="g-seg" role="group" aria-labelledby="h-voice" aria-describedby="voice-help" style="margin-top:12px">
+      <button type="button" data-mode="voice" aria-pressed="true">Phone voice</button>
+      <button type="button" data-mode="sr" aria-pressed="false">Screen reader</button>
+    </div>
+
+    <h2 id="h-building">Which building are you in?</h2>
+    <div class="go-stack" id="building-list" aria-busy="true">
+      <p>Loading buildings…</p>
+    </div>
+  </section>
+
+  <!-- Screen 2: destination -->
+  <section id="scr-dest" aria-labelledby="h-dest" hidden>
+    <h2 id="h-dest" tabindex="-1">Where do you want to go?</h2>
+    <p class="go-p" id="dest-building"></p>
+
+    <form id="ask-form" style="margin-top:20px">
+      <label class="g-label" for="ask-input">Type or dictate where to go</label>
+      <span class="g-hint" id="ask-hint">To dictate, tap the microphone on your keyboard. For example: take me to the lift.</span>
+      <input class="g-input" id="ask-input" type="text" autocomplete="off" enterkeyhint="go" aria-describedby="ask-hint">
+      <button class="gbtn" type="submit" style="margin-top:12px">Ask</button>
+    </form>
+    <p class="g-note" id="ask-answer" role="status" hidden style="margin-top:16px"></p>
+
+    <h2>Or choose a place</h2>
+    <div class="go-stack" id="poi-list" aria-busy="true"><p>Loading places…</p></div>
+
+    <div style="margin-top:28px" class="go-stack">
+      <p class="g-note" id="dest-chosen" role="status" hidden></p>
+      <button class="gbtn gbtn--primary" id="start-btn" type="button" disabled aria-describedby="start-help">Start guidance</button>
+      <p class="go-p" id="start-help">Hold the phone upright at chest height with the back camera facing forward. Your browser will ask to use the camera and motion sensors.</p>
+      <button class="gbtn" id="change-building" type="button">Change building</button>
+    </div>
+  </section>
+
+  <!-- Screen 3: guiding -->
+  <section id="scr-guide" aria-labelledby="h-guide" hidden>
+    <h2 id="h-guide" class="sr-only" tabindex="-1">Guidance</h2>
+    <div class="g-state" id="state" role="status">
+      <svg id="state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/></svg>
+      <span id="state-text">Finding where you are</span>
+    </div>
+
+    <div class="g-note" id="helper-note" hidden style="margin-top:12px"><small>Message from your helper</small><span id="helper-text"></span></div>
+
+    <button class="g-instruction" id="instruction" type="button" style="margin-top:12px" aria-describedby="instruction-hint">
+      <span id="instruction-text">Hold the phone up, camera facing forward.</span>
+    </button>
+    <p class="go-p" id="instruction-hint" style="font-size:17px">Tap the instruction to hear it again. A double tap on an empty part of the screen does the same.</p>
+
+    <dl class="g-facts" style="margin-top:12px">
+      <div><dt>Distance left</dt><dd id="fact-remaining">Not known yet</dd></div>
+      <div><dt>Next</dt><dd id="fact-next">Not known yet</dd></div>
+    </dl>
+
+    <div class="go-stack" style="margin-top:16px">
+      <div class="gbtn-grid">
+        <button class="gbtn" id="repeat-btn" type="button">Repeat</button>
+        <button class="gbtn" id="where-btn" type="button">Where am I?</button>
+      </div>
+      <button class="gbtn gbtn--primary" id="help-btn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="7" r="4"/><path d="M2 21v-1a6 6 0 0 1 6-6h2a6 6 0 0 1 6 6v1M19 8v6M16 11h6"/></svg>
+        Call a helper
+      </button>
+      <button class="gbtn" id="end-btn" type="button">End guidance</button>
+    </div>
+    <video class="g-video" id="video" playsinline muted aria-hidden="true"></video>
+  </section>
+
+  <!-- Screen 4: end -->
+  <section id="scr-end" aria-labelledby="h-end" hidden>
+    <h2 id="h-end" tabindex="-1">Did you reach your destination?</h2>
+    <p class="go-p" id="end-text"></p>
+    <div class="go-stack" style="margin-top:16px" id="end-question">
+      <button class="gbtn gbtn--primary" id="end-yes" type="button">Yes, I'm there</button>
+      <button class="gbtn" id="end-no" type="button">No, end anyway</button>
+      <button class="gbtn" id="end-back" type="button">Keep guiding</button>
+    </div>
+    <div class="go-stack" style="margin-top:16px" id="end-done" hidden>
+      <p class="g-note" role="status">Guidance has ended. Thank you for using Waymark.</p>
+      <button class="gbtn gbtn--primary" id="restart-btn" type="button">Go somewhere else</button>
+    </div>
+  </section>
+
+  <!-- Evaluator panel: 5 taps on the title, or ?eval=1 -->
+  <section class="g-eval" id="eval" aria-labelledby="h-eval" hidden>
+    <h2 id="h-eval" style="margin-top:0">Evaluator</h2>
+    <p class="go-p">Tap a checkpoint number when the visitor is standing on that taped mark.</p>
+    <div class="cp-grid" id="cp-grid" style="margin-top:12px"></div>
+    <p class="go-p" id="cp-status" role="status" style="margin-top:10px"></p>
+    <form id="eval-end" style="margin-top:20px" class="go-stack">
+      <fieldset style="border:0;padding:0;margin:0">
+        <legend class="g-label">Outcome</legend>
+        <div class="g-seg" role="group" aria-label="Outcome">
+          <button type="button" data-arrived="true" aria-pressed="false">Arrived</button>
+          <button type="button" data-arrived="false" aria-pressed="false">Not arrived</button>
+        </div>
+      </fieldset>
+      <label class="g-label" for="eval-notes">Notes</label>
+      <textarea class="g-input" id="eval-notes" rows="3" style="min-height:110px"></textarea>
+      <button class="gbtn gbtn--danger" type="submit">Submit and end visit</button>
+    </form>
+  </section>
+
+  <p class="g-foot">Waymark supplements a cane or guide dog and never replaces them. <a href="index.html">About Waymark</a></p>
+</main>
+
+<script type="module" src="assets/go-app.js"></script>
+</body>
+</html>

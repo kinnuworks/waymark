@@ -1,0 +1,21 @@
+{
+  "app": ".venv/bin/python app.py",
+  "watch": {
+    "include": [
+      "**"
+    ],
+    "exclude": [
+      "cdk.out",
+      ".venv",
+      "**/__pycache__",
+      "outputs.json"
+    ]
+  },
+  "context": {
+    "waymark:repoUrl": "https://github.com/kinnuworks/waymark.git",
+    "waymark:instanceType": "c8g.large",
+    "waymark:availabilityZone": "us-east-1a",
+    "waymark:monthlyBudgetUsd": 40,
+    "waymark:enableCloudFront": false
+  }
+}
