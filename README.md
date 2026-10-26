@@ -1,5 +1,7 @@
 # Waymark
 
+[![tests](https://github.com/kinnuworks/waymark/actions/workflows/ci.yml/badge.svg)](https://github.com/kinnuworks/waymark/actions/workflows/ci.yml)
+
 **Two volunteers walk a building with their phones for 15 minutes. After that, a blind visitor can be guided through it by voice.**
 
 GPS stops at the front door. Indoor guidance for blind and low-vision people exists, but it needs beacons installed in the ceiling or a venue mapped by a large company first, so almost no buildings have it. Waymark needs a printed sheet of paper, two phones with a web browser, and OpenCV 5 running on one AWS Graviton instance.
@@ -30,7 +32,7 @@ All numbers come from scripts in `eval/` and can be re-run with one command (see
 3. **An agent sends the volunteers to different places.** It casts rays from every keyframe to find floor that has been seen but not walked, groups it into regions and assigns them with the Hungarian algorithm, then tells each person where to go next.
 4. **The walks are merged.** Places seen by both volunteers are found with VLAD retrieval and verified with LightGlue and PnP. Their 3D points are fused, and a bundle adjustment anchored to the board pulls both walks into agreement.
 5. **A floor plan and a route graph come out.** Points between knee and head height become walls (occupancy grid, morphology, HoughLinesP). Routes are built only from paths a sighted volunteer actually walked.
-6. **The visitor's phone finds itself every second.** VLAD shortlist, matching to map points, PnP, and LightGlue verification when the evidence is weak. Visitors never calibrate their phone: the focal length is estimated from the first few frames.
+6. **The visitor's phone finds itself every second.** VLAD shortlist, matching to map points, PnP, and LightGlue verification when the evidence is weak. Visitors never calibrate their phone: the focal length is estimated from the first few frames. Between fixes, the phone's compass keeps turn cues immediate ("keep turning", "stop, straight ahead").
 7. **A guidance agent decides what to say.** Each frame gives it image quality, a position and a confidence. It gives one instruction at a time, asks the visitor to pan when it can't see enough, slows them down when unsure, re-routes with fewer turns after repeated mistakes, stops before stairs unless the fix is strong, flags corridors that no longer match the map, and hands over to a human helper instead of guessing. Every decision is stored with what it saw and why.
 
 ![Architecture](docs/architecture.svg)
