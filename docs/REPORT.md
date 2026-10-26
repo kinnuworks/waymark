@@ -152,6 +152,7 @@ Nearly all the time is the ALIKED network, and it scales with cores. Using Light
 | Map state could not be saved (OpenCV objects in the pickle) | API smoke test and demo build | store only specs and centres, rebuild OpenCV objects on load |
 | Arrival message repeated | whole system replay | stay quiet after arriving |
 | Lost tracking early in a walk could not recover (no vocabulary yet) | Stairs replay | try LightGlue against the latest keyframes directly |
+| Walkers lost tracking on 9 to 30% of frames | 7-Scenes walks on Graviton | pooled LightGlue fallback over the two latest keyframes plus a constant-velocity prior: lost frames 30% → 21% (heads 1), 9% → 9% (heads 2), 17% → 1% (office) |
 | Repetitive stairs defeat tracking | Stairs replay | not fixed; the agent hands over to a person (see 7.0) |
 
 ## 8. Limitations
