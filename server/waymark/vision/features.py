@@ -36,29 +36,25 @@ class Features:
 
 
 class Extractor:
-    """Thread-safe ALIKED wrapper (one network instance per thread)."""
+    """ALIKED wrapper. One shared network behind a lock: the DNN engine already
+    uses every core, so parallel copies would only add memory and load time."""
 
     def __init__(self, max_kps: int = 1000):
         self.max_kps = max_kps
         self.kind = "aliked" if config.ALIKED_ONNX.exists() else "sift"
-        self._local = threading.local()
-
-    def _net(self):
-        net = getattr(self._local, "net", None)
-        if net is None:
-            if self.kind == "aliked":
-                params = cv2.ALIKED_Params()
-                params.inputSize = (_ALIKED_SIDE, _ALIKED_SIDE)
-                net = cv2.ALIKED_create(str(config.ALIKED_ONNX), params)
-            else:
-                net = cv2.SIFT_create(nfeatures=self.max_kps)
-            self._local.net = net
-        return net
+        self._lock = threading.Lock()
+        if self.kind == "aliked":
+            params = cv2.ALIKED_Params()
+            params.inputSize = (_ALIKED_SIDE, _ALIKED_SIDE)
+            self._model = cv2.ALIKED_create(str(config.ALIKED_ONNX), params)
+        else:
+            self._model = cv2.SIFT_create(nfeatures=self.max_kps)
 
     def extract(self, img: np.ndarray) -> Features:
         if img.ndim == 2:
             img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-        kps, desc = self._net().detectAndCompute(img, None)
+        with self._lock:
+            kps, desc = self._model.detectAndCompute(img, None)
         h, w = img.shape[:2]
         if desc is None or len(kps) == 0:
             return Features(np.zeros((0, 2), np.float32), np.zeros((0, 128), np.float32),
@@ -106,14 +102,9 @@ class StrongMatcher:
     def __init__(self):
         self.kind = ("lightglue" if config.STRONG_MATCHER == "lightglue"
                      and config.LIGHTGLUE_ONNX.exists() and config.ALIKED_ONNX.exists() else "mnn")
-        self._local = threading.local()
-
-    def _net(self):
-        net = getattr(self._local, "net", None)
-        if net is None:
-            net = cv2.LightGlueMatcher_create(str(config.LIGHTGLUE_ONNX), 0.0)
-            self._local.net = net
-        return net
+        self._lock = threading.Lock()
+        self._model = (cv2.LightGlueMatcher_create(str(config.LIGHTGLUE_ONNX), 0.0)
+                       if self.kind == "lightglue" else None)
 
     def match(self, a: Features, b: Features, min_score: float = 0.2,
               max_kps: int = 600) -> tuple[np.ndarray, np.ndarray]:
@@ -126,9 +117,9 @@ class StrongMatcher:
             return match_mnn(a.desc, b.desc)
         sa = np.argsort(-a.scores)[:max_kps]
         sb = np.argsort(-b.scores)[:max_kps]
-        net = self._net()
-        net.setPairInfo(np.ascontiguousarray(a.kps[sa]), np.ascontiguousarray(b.kps[sb]), a.size, b.size)
-        ms = net.match(np.ascontiguousarray(a.desc[sa]), np.ascontiguousarray(b.desc[sb]))
+        with self._lock:  # setPairInfo and match must not interleave between threads
+            self._model.setPairInfo(np.ascontiguousarray(a.kps[sa]), np.ascontiguousarray(b.kps[sb]), a.size, b.size)
+            ms = self._model.match(np.ascontiguousarray(a.desc[sa]), np.ascontiguousarray(b.desc[sb]))
         # LightGlue reports 1 - confidence in DMatch.distance.
         good = [m for m in ms if 1.0 - m.distance >= min_score]
         ia = sa[np.array([m.queryIdx for m in good], int)] if good else np.zeros(0, int)

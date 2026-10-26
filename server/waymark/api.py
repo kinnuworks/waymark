@@ -8,6 +8,7 @@ import re
 import time
 
 import cv2
+import numpy as np
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
@@ -21,6 +22,11 @@ from .vision.features import extractor, strong_matcher
 
 app = FastAPI(title="Waymark", docs_url="/api/docs", openapi_url="/api/openapi.json")
 reg = Registry()
+# Load and warm both networks at start-up so the first phone frame is not slow.
+_warm = np.zeros((480, 640, 3), np.uint8)
+cv2.randu(_warm, 0, 255)
+_wf = extractor().extract(_warm)
+strong_matcher().match(_wf, _wf)
 POI_KINDS = {"room", "door", "stairs", "lift", "restroom", "exit", "desk", "other"}
 
 
