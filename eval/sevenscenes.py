@@ -214,11 +214,13 @@ def main():
     ap.add_argument("scene")
     ap.add_argument("what", default="all", nargs="?")
     ap.add_argument("--step", type=int, default=5)
+    ap.add_argument("--seq", type=int, default=None)
     args = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
     out = {}
     if args.what in ("walk", "all"):
-        _, out["walk"] = run_walk(args.scene, split(args.scene, "TrainSplit.txt")[0], args.step)
+        seq = args.seq if args.seq is not None else split(args.scene, "TrainSplit.txt")[0]
+        _, out["walk"] = run_walk(args.scene, seq, args.step)
         print(json.dumps(out["walk"], indent=1), flush=True)
     if args.what in ("merge", "all"):
         tr = split(args.scene, "TrainSplit.txt") + split(args.scene, "TestSplit.txt")
