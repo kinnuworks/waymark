@@ -1,0 +1,43 @@
+{
+  "updated": "2026-10-27",
+  "sections": [
+    {
+      "title": "Whole system through the live API on Graviton",
+      "note": "Real indoor video (Microsoft 7-Scenes) with a virtual entrance board drawn where the camera would see it. Two volunteers calibrate and walk, the map is built, a visitor is guided. Ground truth is used only to draw the board and to score. eval/system_replay.py",
+      "columns": ["Scene", "Visitor error (median)", "90th percentile", "Frames located", "Server time per frame"],
+      "rows": [
+        ["Heads", "1.4 cm", "3.2 cm", "92%", "354 ms"],
+        ["Office", "16 cm", "28 cm", "100%", "358 ms"],
+        ["Stairs", "failed: tracking lost on repetitive steps; the guide handed over to a person", "", "0%", ""]
+      ]
+    },
+    {
+      "title": "Mapping and merging two walks",
+      "note": "7-Scenes heads, two sequences as two volunteers, reference poses only at the start and end of each walk. eval/sevenscenes.py",
+      "columns": ["Stage", "Keyframe error (median)"],
+      "rows": [
+        ["Live tracking", "13.5 cm and 23.2 cm"],
+        ["After board-anchored bundle adjustment", "2.0 cm and 7.5 cm"],
+        ["After merging both walkers", "1.2 cm (worst 4.2 cm)"]
+      ]
+    },
+    {
+      "title": "Relocalisation, standard 7-Scenes protocol",
+      "note": "100 test frames, no prior pose. HLoc's published result on this scene is 1.0 cm.",
+      "columns": ["Median error", "Within 5 cm and 5 degrees", "Failures"],
+      "rows": [["1.77 cm, 1.98 degrees", "95%", "0 of 100"]]
+    },
+    {
+      "title": "Time per visitor frame on Graviton4",
+      "note": "Median of 15 runs, OpenCV 5.0.0 arm64 wheel with the KleidiCV HAL. eval/speed.py",
+      "columns": ["Instance", "ALIKED", "Everything else", "Whole frame"],
+      "rows": [["c8g.large (2 vCPU)", "541 ms", "45 ms", "586 ms"], ["c8g.xlarge (4 vCPU)", "308 ms", "44 ms", "352 ms"]]
+    },
+    {
+      "title": "Field test with blind and low-vision participants",
+      "note": "Real building, real phones, Oct 27. Results are added here after the session.",
+      "columns": ["Measure", "Result"],
+      "rows": [["Routes completed", "being measured"], ["Checkpoint accuracy", "being measured"]]
+    }
+  ]
+}
