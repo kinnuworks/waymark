@@ -69,7 +69,7 @@ Every decision is stored with what the agent saw, what it decided and why, and s
 
 | Component | Service | Why |
 |---|---|---|
-| Compute | EC2 c8g.large (Graviton4, arm64), Ubuntu 24.04 | OpenCV 5's arm64 build ships KleidiCV; Graviton costs less per frame (see 7.4) |
+| Compute | EC2 c8g.xlarge (Graviton4, arm64, 4 vCPU), Ubuntu 24.04 | OpenCV 5's arm64 build ships KleidiCV; Graviton costs less per frame (see 7.4) |
 | HTTPS front door | API Gateway HTTP API | Phones need HTTPS for the camera. The origin accepts only requests carrying a secret header added by the gateway |
 | Traces | DynamoDB (on demand) | Every decision, keyed by walker or visit |
 | Walk archive | S3, 30-day expiry on frames | Replay any walk through the pipeline |
@@ -119,20 +119,21 @@ FIELD_TABLE
 
 ### 7.4 Speed and cost on Graviton
 
-Median of 15 runs per stage on real 7-Scenes frames, EC2 c8g.large (Graviton4, 2 vCPU), OpenCV 5.0.0 arm64 wheel (KleidiCV 26.03 HAL built in), `eval/speed.py`.
+Median of 15 runs per stage on real 7-Scenes frames, OpenCV 5.0.0 arm64 wheel (KleidiCV 26.03 HAL built in), `eval/speed.py`.
 
-| Stage | Time |
-|---|---|
-| JPEG decode | 0.8 ms |
-| Quality gate | 0.9 ms |
-| ALIKED, 1,000 keypoints | 541 ms |
-| VLAD shortlist | 1.1 ms |
-| MNN matching, 1,000 × 1,000 | 19.7 ms |
-| MAGSAC++ PnP + refinement | 33.9 ms |
-| LightGlue, 600 × 600 (keyframes only) | 561 ms |
-| **Whole visitor frame** | **586 ms** |
+| Stage | c8g.large (2 vCPU) | c8g.xlarge (4 vCPU) |
+|---|---|---|
+| JPEG decode | 0.8 ms | 0.8 ms |
+| Quality gate | 0.9 ms | 0.7 ms |
+| ALIKED, 1,000 keypoints | 541 ms | 308 ms |
+| VLAD shortlist | 1.1 ms | 1.1 ms |
+| MNN matching, 1,000 × 1,000 | 19.7 ms | 10.2 ms |
+| MAGSAC++ PnP + refinement | 33.9 ms | 25.8 ms |
+| LightGlue, 600 × 600 (keyframes only) | 561 ms | 302 ms |
+| **Whole visitor frame** | **586 ms** | **352 ms** |
+| On-demand price (us-east-1) | about $1.92 a day | about $3.83 a day |
 
-Nearly all the time is the ALIKED network. Using LightGlue on every frame would double the cost. So one c8g.large (about $1.92 a day) guides one visitor at 1 Hz, and mapping uses LightGlue only at keyframes.
+Nearly all the time is the ALIKED network, and it scales with cores. Using LightGlue on every frame would double the cost, which is why mapping uses it only at keyframes. The live site runs on c8g.xlarge.
 
 ### 7.5 Failure cases
 

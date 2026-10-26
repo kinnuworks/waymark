@@ -236,7 +236,7 @@
             <p class="lead">About once a second the visitor's phone sends one camera frame and its compass heading. The server finds a shortlist of nearby keyframes, matches features to the map's 3D points, and solves for position and heading.</p>
             <ul class="feat-list">
               <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Median 1.77 cm and 1.98° on the 7-Scenes relocalisation protocol</li>
-              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>586 ms per frame on one Graviton4 c8g.large</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>352 ms per frame on one Graviton4 instance</li>
               <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Replies come as speech and vibration and work with screen readers. Visitor frames are not stored</li>
             </ul>
             <div class="chips"><span class="chip">VLAD shortlist</span><span class="chip">MAGSAC++ PnP</span><span class="chip">LightGlue when weak</span></div>
@@ -252,7 +252,7 @@
                     <div class="cam__door"></div>
                     <div class="cam__floor"></div>
                     <i class="kp" style="left:22%;top:24%"></i><i class="kp" style="left:33%;top:27%"></i><i class="kp" style="left:58%;top:17%"></i><i class="kp" style="left:80%;top:18%"></i><i class="kp" style="left:61%;top:48%"></i><i class="kp" style="left:78%;top:70%"></i><i class="kp" style="left:12%;top:62%"></i><i class="kp" style="left:44%;top:40%"></i><i class="kp" style="left:90%;top:52%"></i><i class="kp" style="left:28%;top:72%"></i><i class="kp" style="left:68%;top:30%"></i>
-                    <div class="cam__hud"><span>162 inliers</span><span>586 ms</span></div>
+                    <div class="cam__hud"><span>162 inliers</span><span>352 ms</span></div>
                   </div>
                   <div class="pose"><div>x<b>4.12 m</b></div><div>z<b>7.80 m</b></div><div>heading<b>92°</b></div></div>
                   <div class="g-meter"><div class="g-meter__row"><span>Fixes, last 10 s</span><b>1 Hz</b></div><div class="ticks"><i></i><i></i><i></i><i></i><i class="lo"></i><i></i><i></i><i></i><i></i><i></i></div></div>
@@ -383,7 +383,7 @@
       <div class="section-head">
         <span class="eyebrow"><span class="dot"></span>Results</span>
         <h2 id="results-title">Measured against ground truth.</h2>
-        <p class="lead">Every number here comes from a script in the repo. Mapping and relocalisation use the Microsoft 7-Scenes "heads" scene. Timing is the median of 15 runs on a Graviton4 c8g.large.</p>
+        <p class="lead">Every number here comes from a script in the repo. Mapping and relocalisation use the Microsoft 7-Scenes "heads" scene. Timing is the median of 15 runs on Graviton4 (c8g.xlarge).</p>
       </div>
 
       <div class="bento">
@@ -415,8 +415,8 @@
 
         <article class="reveal" style="--i:1">
           <span class="eyebrow">One visitor frame</span>
-          <div class="stat" style="font-size:clamp(36px,4vw,48px)">586<small>ms</small></div>
-          <p class="t-title" style="color:var(--ink)">end to end on Graviton4 c8g.large.</p>
+          <div class="stat" style="font-size:clamp(36px,4vw,48px)">352<small>ms</small></div>
+          <p class="t-title" style="color:var(--ink)">end to end on Graviton4 c8g.xlarge.</p>
           <div class="timebar" aria-hidden="true"><i class="a"></i><i class="b"></i></div>
           <p class="bento__foot">ALIKED features take 541 ms. Everything else, matching and PnP included, takes about 30 ms.</p>
         </article>
@@ -464,7 +464,7 @@
         <div class="arch__link" aria-hidden="true"><span>/api</span></div>
         <div class="arch__node arch__node--main reveal" style="--i:2">
           <span class="eyebrow">Compute</span>
-          <h3>Graviton4 c8g.large running OpenCV 5</h3>
+          <h3>Graviton4 c8g.xlarge running OpenCV 5</h3>
           <ul>
             <li>ChArUco board pose with solvePnP</li>
             <li>ALIKED keypoints, LightGlue at keyframes</li>
@@ -528,7 +528,7 @@
         </details>
         <details>
           <summary>What does it cost to run?</summary>
-          <p>It's free for visitors and buildings. One c8g.large instance costs about $1.92 a day and guides one visitor at one frame per second.</p>
+          <p>It's free for visitors and buildings. One c8g.xlarge instance costs about $3.83 a day and answers each visitor frame in about a third of a second. The smaller c8g.large costs half that at 0.6 seconds a frame.</p>
         </details>
         <details>
           <summary>What happens to the camera images?</summary>
