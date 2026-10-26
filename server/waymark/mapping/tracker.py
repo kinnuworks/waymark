@@ -30,6 +30,7 @@ class WalkerTracker:
         self.data = data or MapData()
         self.calib: dict | None = None
         self.last_pose: tuple[np.ndarray, np.ndarray] | None = None
+        self.prev_pose: tuple[np.ndarray, np.ndarray] | None = None
         self.lost_frames = 0
         self.frames = 0
         self.vocab: Vocabulary | None = None
@@ -75,7 +76,7 @@ class WalkerTracker:
             if tracked is not None:
                 tracked = (pose[0], pose[1], tracked[2], tracked[3], tracked[4])
         else:
-            tracked = self._track(feats, K, prior=self.last_pose)
+            tracked = self._track(feats, K, prior=self._predict())
             if tracked is None:
                 tracked = self._relocalise(feats, K)
             if tracked is not None:
@@ -88,7 +89,7 @@ class WalkerTracker:
             return self._result("lost", q, self.last_pose, "lost")
 
         self.lost_frames = 0
-        self.last_pose = pose
+        self.prev_pose, self.last_pose = self.last_pose, pose
         last = self.data.keyframes[-1]
         dist = float(np.linalg.norm(geometry.center(*pose) - last.c))
         ang = geometry.angle_between(pose[0], last.R)
@@ -124,20 +125,29 @@ class WalkerTracker:
         ia, ib = match_mnn(feats.desc, pdesc, max_dist=1.0, ratio=0.92)
         res = geometry.pnp(xyz[ib], feats.kps[ia], K) if len(ia) >= 12 else None
         if res is None or res[2].sum() < MIN_TRACK_INLIERS:
-            # Second chance: LightGlue against the most recent keyframe with points.
-            last = next((k for k in reversed(self.data.keyframes) if (k.pid >= 0).sum() > 30), None)
-            if last is None:
+            # Second chance: LightGlue against the two most recent keyframes with
+            # points, pooling their 2D-3D matches into one PnP.
+            recent = [k for k in reversed(self.data.keyframes) if (k.pid >= 0).sum() > 30][:2]
+            if not recent:
                 return None
-            ja, jb = strong_matcher().match(feats, last.feats)
-            has = last.pid[jb] >= 0
-            ja, jb = ja[has], jb[has]
-            if len(ja) < 12:
+            qa, pids = [], []
+            seen = set()
+            for kf in recent:
+                ja, jb = strong_matcher().match(feats, kf.feats)
+                for a, b in zip(ja, jb):
+                    p = int(kf.pid[b])
+                    if p >= 0 and a not in seen and p in self.data.xyz:
+                        seen.add(a)
+                        qa.append(a)
+                        pids.append(p)
+            if len(qa) < 12:
                 return None
-            pts = np.array([self.data.xyz[int(p)] for p in last.pid[jb]])
-            res = geometry.pnp(pts, feats.kps[ja], K)
+            qa, pids = np.array(qa), np.array(pids)
+            pts = np.array([self.data.xyz[p] for p in pids])
+            res = geometry.pnp(pts, feats.kps[qa], K)
             if res is None or res[2].sum() < MIN_TRACK_INLIERS:
                 return None
-            return res[0], res[1], ja, res[2], last.pid[jb]
+            return res[0], res[1], qa, res[2], pids
         return res[0], res[1], ia, res[2], ids[ib]
 
     def _relocalise(self, feats: Features, K):
@@ -171,6 +181,18 @@ class WalkerTracker:
         if res is None or res[2].sum() < MIN_TRACK_INLIERS:
             return None
         return res[0], res[1], ia, res[2], ids[ib]
+
+    def _predict(self):
+        """Constant-velocity guess of the current pose, used to pick nearby keyframes."""
+        if self.last_pose is None:
+            return None
+        prev = getattr(self, "prev_pose", None)  # older saved trackers lack it
+        if prev is None:
+            return self.last_pose
+        (R1, t1), (R0, t0) = self.last_pose, prev
+        c1, c0 = geometry.center(R1, t1), geometry.center(R0, t0)
+        c2 = c1 + (c1 - c0)
+        return R1, -R1 @ c2
 
     def _needs_bootstrap(self) -> bool:
         return len(self.data.xyz) < 30
