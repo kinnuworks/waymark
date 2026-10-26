@@ -57,7 +57,14 @@ class Plan:
 
 def build(data: MapData) -> Plan:
     traj = np.array([[kf.c[0], kf.c[2]] for kf in data.keyframes])
-    pts = np.array(list(data.xyz.values())) if data.xyz else np.zeros((0, 3))
+    # Wall evidence: points seen from at least three keyframes, within 5 m of
+    # where someone walked, between knee and head height. Far, thinly observed
+    # points are mostly triangulation noise and draw streaks, not walls.
+    good = [p for p, o in data.obs.items() if len(o) >= 3 and p in data.xyz]
+    pts = np.array([data.xyz[p] for p in good]) if good else np.zeros((0, 3))
+    if len(pts) and len(traj):
+        d = np.min(np.linalg.norm(pts[:, None, [0, 2]] - traj[None, :, :], axis=2), axis=1)
+        pts = pts[d < 5.0]
     band = pts[(pts[:, 1] > WALL_MIN_Y) & (pts[:, 1] < WALL_MAX_Y)] if len(pts) else pts
     # Ignore far outliers so a handful of bad points cannot blow up the canvas.
     ref = np.vstack([traj, band[:, [0, 2]]]) if len(band) else traj
@@ -77,7 +84,7 @@ def build(data: MapData) -> Plan:
         dens = np.zeros((rows, cols), np.float32)
         np.add.at(dens, (r[ok].astype(int), c[ok].astype(int)), 1.0)
         dens = cv2.GaussianBlur(dens, (0, 0), 1.0)
-        thr = max(0.8, float(np.percentile(dens[dens > 0], 60))) if (dens > 0).any() else 1.0
+        thr = max(1.2, float(np.percentile(dens[dens > 0], 75))) if (dens > 0).any() else 1.0
         walls = (dens >= thr).astype(np.uint8) * 255
         walls = cv2.morphologyEx(walls, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)))
         walls = cv2.morphologyEx(walls, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3)))
