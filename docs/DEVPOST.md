@@ -40,7 +40,14 @@ GPS stops at the front door. Inside an unfamiliar library, clinic or college bui
 
 ## Results
 
-RESULTS_BLOCK
+Every number re-runs from a script in the repository.
+
+| What | Result |
+|---|---|
+| Whole system through the live API on Graviton (real indoor video, virtual board) | visitor located to **1.4 cm** median, 92% of frames, 354 ms per frame |
+| Two walkers merged, against ground truth | **1.2 cm** median keyframe error |
+| Relocalisation, standard 7-Scenes protocol | 1.77 cm, 95% within 5 cm and 5°, 0 failures (HLoc: 1.0 cm) |
+| Where it breaks | a staircase with repetitive steps: tracking lost, and the guide handed the visitor to a person, as designed |
 
 ## Challenges we ran into
 
