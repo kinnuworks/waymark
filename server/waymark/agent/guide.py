@@ -152,6 +152,9 @@ class GuideAgent:
             return "guiding", msg, "none", "fix confident; no destination chosen yet", None
         poi = self.pois[v.destination]
         dist_goal = float(np.linalg.norm(xz - np.array([poi.x, poi.z])))
+        if v.arrived and dist_goal < ARRIVE_M * 1.6:
+            return "arrived", "", "none", f"already arrived; {dist_goal:.1f} m from the destination, staying quiet", \
+                {"remaining_m": round(dist_goal, 1), "next_turn_deg": 0, "next_label": poi.label}
         if dist_goal < ARRIVE_M:
             v.arrived = True
             side = turn_words(wrap(floorplan.yaw_to(xz, np.array([poi.x, poi.z])) - yaw))

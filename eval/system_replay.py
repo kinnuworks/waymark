@@ -164,6 +164,7 @@ def main():
     ap.add_argument("--step", type=int, default=10)
     ap.add_argument("--url", default=None)
     ap.add_argument("--name", default=None)
+    ap.add_argument("--places", default=None, help='JSON list of [fraction, label, kind]')
     args = ap.parse_args()
     cl = Client(args.url)
     seqs = sorted(int(p.name.split("-")[1]) for p in (Path(os.environ.get("SEVENSCENES", ROOT / "eval/data/7scenes")) / args.scene).glob("seq-*") if p.is_dir())
@@ -175,7 +176,7 @@ def main():
     name = args.name or f"Sample room: Microsoft 7-Scenes '{args.scene}' replayed through the live system"
     bid = cl.post("/api/buildings", {"name": name, "board_height_m": spec.height_m, "square_mm": 35.0})["id"]
     report = {"scene": args.scene, "board_height_m": spec.height_m, "walkers": {}}
-    places = [(0.3, "Reading desk", "desk"), (0.55, "Bookshelf", "other"), (0.8, "Door to the corridor", "door")]
+    places = json.loads(args.places) if args.places else [(0.3, "Reading desk", "desk"), (0.55, "Bookshelf", "other"), (0.8, "Door to the corridor", "door")]
 
     for k, s in enumerate(seqs[:2]):
         wid = cl.post(f"/api/buildings/{bid}/walkers", {"name": f"Volunteer {'AB'[k]}"})["walker_id"]
