@@ -288,6 +288,8 @@ class Building:
         rec["ms"] = out["ms"]
         rec["heading_deg"] = heading
         store.trace(f"visit-{v.id}", rec)
+        if len(v.trace) % 10 == 0:
+            self.save()
         return out
 
 

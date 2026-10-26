@@ -142,6 +142,17 @@ class WalkerTracker:
 
     def _relocalise(self, feats: Features, K):
         if self.vocab is None or not self.vlad:
+            # Too few keyframes for a vocabulary yet: try each of them directly,
+            # most recent first, with LightGlue.
+            for kf in list(reversed(self.data.keyframes))[:6]:
+                ia, ib = strong_matcher().match(feats, kf.feats)
+                has = kf.pid[ib] >= 0 if len(ib) else np.zeros(0, bool)
+                if has.sum() < 12:
+                    continue
+                pts = np.array([self.data.xyz[int(p)] for p in kf.pid[ib][has]])
+                res = geometry.pnp(pts, feats.kps[ia][has], K)
+                if res is not None and res[2].sum() >= MIN_TRACK_INLIERS:
+                    return res[0], res[1], ia[has], res[2], kf.pid[ib][has]
             return None
         q = self.vocab.vlad(feats.desc)
         kf_ids = np.array(list(self.vlad.keys()))

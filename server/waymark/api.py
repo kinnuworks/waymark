@@ -308,6 +308,7 @@ def end(vid: str, body: EndVisit):
     store.trace(f"visit-{vid}", {"t": time.time(), "state": "ended", "decided": "visit ended",
                                  "arrived": body.arrived, "notes": body.notes[:500],
                                  "duration_s": round(time.time() - v.started, 1)})
+    b.save()
     return {"ok": True}
 
 

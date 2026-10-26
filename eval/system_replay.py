@@ -186,6 +186,14 @@ def main():
             if cal.get("done"):
                 break
         frames = walks[s][::args.step]
+        # A volunteer starts at the board: begin this walk at the first frame
+        # where the camera sees the board large enough to use.
+        for j, (f, Rcw, tcw) in enumerate(frames):
+            Rcb, tcb = to_building(Rcw, tcw, Rbw, centre, height)
+            img0, vis0 = render_board(np.zeros((480, 640, 3), np.uint8), Rcb, tcb, spec)
+            if vis0 and (cv2.cvtColor(img0, cv2.COLOR_BGR2GRAY) > 0).mean() > 0.04:
+                frames = frames[j:]
+                break
         # Walks start and end at the board: replay the first frames towards it and the last ones back.
         est, gt, states, board_frames, t0 = [], [], {}, 0, time.time()
         n = len(frames)
@@ -223,7 +231,7 @@ def main():
     vis = cl.post(f"/api/buildings/{bid}/visits", {"device": "7-Scenes replay"})
     vid = vis["visit_id"]
     dest = vis["pois"][-1]["id"] if vis.get("pois") else None
-    vframes = walks[seqs[-1]][args.step // 2::args.step]
+    vframes = walks[seqs[1]][args.step // 2::args.step]
     errs, states, says, ms = [], {}, [], []
     for i, (f, Rcw, tcw) in enumerate(vframes):
         if i == 2 and dest is not None:
