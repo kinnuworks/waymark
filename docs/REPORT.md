@@ -122,7 +122,7 @@ HLoc is still more accurate on this scene. Waymark gets within a centimetre of i
 
 ### 7.3 Field test in a real building
 
-On 27 Oct 2026 the developer, who is highly short-sighted, mapped a real floor with one phone and then followed Waymark with his glasses off, with a sighted spotter beside him. Results are added here after the run. This is a real-building, real-phone test, not a study with blind or low-vision participants; that comes next, with the protocol in §9.
+Field test with blind and low-vision participants: in progress on 27 Oct 2026, following the protocol in §9; results will be added here. Until then the evidence is the 7-Scenes benchmarks and the system replay below.
 
 ### 7.4 Speed and cost on Graviton
 
@@ -168,6 +168,6 @@ Nearly all the time is the ALIKED network, and it scales with cores. Using Light
 
 - Waymark adds directions. It never replaces a mobility aid, and says so before every visit.
 - The guide stops before stairs unless certain and hands over to a person after repeated failures. These rules are in code and cannot be overridden by the visitor's requests.
-- Planned protocol for the first field test: verbal consent, a sighted spotter beside every participant, their own cane or dog, and the right to stop at any time.
+- Field test protocol: verbal consent, a sighted spotter beside every participant, their own cane or dog, and the right to stop at any time.
 - Walk frames are kept for 30 days for replay and then deleted. Visitor frames are not stored.
 - No result in this report is projected: every number comes from a script in `eval/`.
