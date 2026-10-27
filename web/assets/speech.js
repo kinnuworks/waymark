@@ -16,19 +16,39 @@ let watchdog = 0;
 const queue = [];
 const listeners = new Set();
 
+// Higher-quality system voices, best first. Default voices on many devices sound robotic
+// even when a natural one is installed.
+const GOOD = [/premium/i, /enhanced/i, /natural/i, /neural/i, /^google (uk|us) english/i,
+  /\b(samantha|ava|zoe|serena|daniel|kate|karen|moira|tessa|allison|susan|evan|nathan|jamie)\b/i];
+
+function score(v, lang, base) {
+  const l = v.lang.toLowerCase().replace('_', '-');
+  if (!l.startsWith(base)) return -1;
+  let s = l === lang ? 20 : 10;
+  const q = GOOD.findIndex((re) => re.test(v.name));
+  if (q >= 0) s += 40 - q * 3;
+  if (/compact|eloquence|novelty|whisper|bells|bubbles|cellos|organ|zarvox|albert|bahh|boing|trinoids|jester|superstar|wobble|grandma|grandpa|rocko|shelley|flo|eddy|reed|sandy/i.test(v.name)) s -= 30;
+  if (v.localService) s += 2; // works offline and starts faster
+  return s;
+}
+
+export function bestVoice(voices) {
+  if (!voices?.length) return null;
+  const lang = (navigator.language || 'en-GB').toLowerCase();
+  const base = lang.split('-')[0];
+  let best = null; let top = -1;
+  for (const v of voices) {
+    const s = score(v, lang, base);
+    if (s > top) { top = s; best = v; }
+  }
+  return best || voices.find((v) => v.default) || voices[0];
+}
+
 function pickVoice() {
   if (!synth) return;
   const voices = synth.getVoices();
   if (!voices.length) return;
-  const lang = (navigator.language || 'en-GB').toLowerCase();
-  const base = lang.split('-')[0];
-  voice =
-    voices.find((v) => v.lang.toLowerCase() === lang && v.localService) ||
-    voices.find((v) => v.lang.toLowerCase() === lang) ||
-    voices.find((v) => v.lang.toLowerCase().startsWith(base) && v.default) ||
-    voices.find((v) => v.lang.toLowerCase().startsWith(base)) ||
-    voices.find((v) => v.default) ||
-    voices[0];
+  voice = bestVoice(voices);
 }
 
 if (synth) {

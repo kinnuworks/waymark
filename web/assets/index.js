@@ -1,6 +1,7 @@
 // Landing page: the "Try it here" agent simulator, live results from /api/eval
 // and server facts from /api/health.
 import { api, escapeHtml } from './api.js';
+import { bestVoice } from './speech.js';
 
 // ---------- Try it here ----------
 // Mirrors the order of checks in server/waymark/agent/guide.py (_decide and _escalate).
@@ -102,7 +103,9 @@ if (form) {
     hear.addEventListener('click', () => {
       speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(lastSay);
-      u.lang = 'en-GB';
+      const v = bestVoice(speechSynthesis.getVoices());
+      if (v) u.voice = v;
+      u.lang = v?.lang || 'en-GB';
       u.rate = 0.95;
       speechSynthesis.speak(u);
     });
