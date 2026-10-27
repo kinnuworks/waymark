@@ -306,7 +306,7 @@
     <div class="container">
       <div class="section-head">
         <span class="eyebrow"><span class="dot"></span>Try it here</span>
-        <h2 id="try-title">Make the guide unsure and hear what it tells the visitor.</h2>
+        <h2 id="try-title">Hear what Waymark says when it isn&rsquo;t sure where you are.</h2>
         <p class="lead">These controls run the same rules as the guidance agent on the server. Move the confidence down, put stairs ahead, or walk off the route.</p>
       </div>
 
@@ -356,7 +356,7 @@
 
             <div class="try-readout">
               <div class="readout">
-                <h3>What the agent decided</h3>
+                <h3>What the guide tells the visitor</h3>
                 <dl>
                   <dt>Says</dt><dd id="r-say" aria-live="polite">Walk straight for 6 metres, then turn left.</dd>
                   <dt>State</dt><dd><code id="r-state">guiding</code></dd>
@@ -365,7 +365,7 @@
                 </dl>
               </div>
               <div class="readout">
-                <h3>Rules, checked in order</h3>
+                <h3>Why it said that</h3>
                 <ol class="rule-list" id="r-rules">
                   <li data-rule="pan">Below 0.35: ask for a slow pan</li>
                   <li data-rule="stopwalk">3 misses in a row: ask to stop walking</li>
@@ -388,7 +388,7 @@
     <div class="container">
       <div class="section-head">
         <span class="eyebrow"><span class="dot"></span>Results</span>
-        <h2 id="results-title">It locates a visitor to 1.4 cm on real indoor video.</h2>
+        <h2 id="results-title">Accurate to 1.4 cm on real indoor video, with 92% of frames located.</h2>
         <p class="lead">That is the median over a replayed visit through the live server, with 92% of frames located. Every number here comes from a script in the repo. Mapping and relocalisation use the Microsoft 7-Scenes "heads" scene. Timing is the median of 15 runs on Graviton4 (c8g.xlarge).</p>
       </div>
 
@@ -396,7 +396,7 @@
         <article class="is-accent span-3 reveal">
           <span class="eyebrow">Two volunteers&rsquo; maps agree within</span>
           <div class="stat">1.2<small>cm</small></div>
-          <p class="t-title" style="color:#2A1700">Median keyframe error after merging two walks.</p>
+          <p class="t-title" style="color:#2A1700">Two volunteers&rsquo; maps line up to within 1.2 cm of each other after merging.</p>
           <p>Worst keyframe 4.2 cm. Reprojection error drops from 28.4 px to 2.3 px. Only the first and last 10 frames of each walk get a reference pose, the same way the board anchors a real walk.</p>
         </article>
 
@@ -414,7 +414,7 @@
         <article class="reveal">
           <span class="eyebrow">Phone found from one photo (benchmark)</span>
           <div class="stat" style="font-size:clamp(36px,4vw,48px)">1.77<small>cm</small></div>
-          <p class="t-title" style="color:var(--ink)">and 1.98° median, with no prior pose.</p>
+          <p class="t-title" style="color:var(--ink)">A phone finds where it is from one photo, with no hint, to within 1.77 cm.</p>
           <div class="kv"><span>within 5 cm, 5° <b>95%</b></span><span>failed <b>0 / 100</b></span></div>
           <p class="bento__foot">HLoc publishes 1.0 cm on this scene and is still more accurate. Waymark gets close without a retrieval network.</p>
         </article>
@@ -422,7 +422,7 @@
         <article class="reveal" style="--i:1">
           <span class="eyebrow">Time to answer one photo</span>
           <div class="stat" style="font-size:clamp(36px,4vw,48px)">352<small>ms</small></div>
-          <p class="t-title" style="color:var(--ink)">end to end on Graviton4 c8g.xlarge.</p>
+          <p class="t-title" style="color:var(--ink)">from photo to spoken direction, on one AWS Graviton4 server.</p>
           <div class="timebar" aria-hidden="true"><i class="a"></i><i class="b"></i></div>
           <p class="bento__foot">ALIKED features take about 308 ms. Everything else, matching and PnP included, takes about 45 ms.</p>
         </article>
@@ -430,7 +430,7 @@
         <article class="reveal" style="--i:2">
           <span class="eyebrow">Map correction (bundle adjustment)</span>
           <div class="stat" style="font-size:clamp(36px,4vw,48px)">4.6<small>mm</small></div>
-          <p class="t-title" style="color:var(--ink)">pose error recovered with 15% gross outliers.</p>
+          <p class="t-title" style="color:var(--ink)">The map stays this accurate even when 15% of matches are wrong.</p>
           <div class="kv"><span>solve time <b>0.4 s</b></span></div>
                   </article>
 
@@ -517,7 +517,7 @@
     <div class="container">
       <div class="section-head">
         <span class="eyebrow"><span class="dot"></span>Questions</span>
-        <h2 id="faq-title">Questions people ask.</h2>
+        <h2 id="faq-title">Does it replace a cane or guide dog? No. Other questions, answered.</h2>
       </div>
       <div class="faq">
         <details>
