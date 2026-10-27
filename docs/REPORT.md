@@ -122,7 +122,7 @@ HLoc is still more accurate on this scene. Waymark gets within a centimetre of i
 
 ### 7.3 Field test in a real building
 
-Field test with blind and low-vision participants: in progress on 27 Oct 2026; results will be added here. Until then the evidence is the 7-Scenes benchmarks and the system replay below.
+No blind or low-vision user has tested Waymark yet. All evidence in this report comes from replayed benchmark video (7-Scenes) and the system replay. A field test is the next step; the planned protocol is in §9.
 
 ### 7.4 Speed and cost on Graviton
 
@@ -162,12 +162,12 @@ Nearly all the time is the ALIKED network, and it scales with cores. Using Light
 - Visual localisation fails on blank walls, glass and in the dark. The agent detects this and stops, but it cannot see through it.
 - Buildings change. Waymark notices when a place no longer matches and asks for a re-walk of that corridor, but it does not update the map by itself.
 - One floor per map. Lifts and stairs end a route.
-- The field study is small and is reported as such.
+- There is no user study yet: no arrival rates, times or user feedback.
 
 ## 9. Responsible use
 
 - Waymark adds directions. It never replaces a mobility aid, and says so before every visit.
 - The guide stops before stairs unless certain and hands over to a person after repeated failures. These rules are in code and cannot be overridden by the visitor's requests.
-- Participants in the field test gave verbal consent, were accompanied by a sighted spotter, kept their own cane or dog, and could stop at any time.
+- Planned protocol for the first field test: verbal consent, a sighted spotter beside every participant, their own cane or dog, and the right to stop at any time.
 - Walk frames are kept for 30 days for replay and then deleted. Visitor frames are not stored.
-- No result in this report is projected: every number comes from a script in `eval/` or from the field traces.
+- No result in this report is projected: every number comes from a script in `eval/`.

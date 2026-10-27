@@ -46,7 +46,7 @@
     <div class="container">
       <span class="badge badge--dot">OpenCV AI Competition 2026 entry</span>
       <h1 id="hero-title">Voice directions for blind visitors, in any building, after a <span class="hl">15-minute</span> walk.</h1>
-      <p class="lead">Two volunteers walk the floor with their phones. Then a blind or low-vision visitor's phone knows where it is to a few centimetres and speaks one step at a time. No beacons, nothing to install.</p>
+      <p class="lead">Two volunteers walk the floor with their phones. Then a blind or low-vision visitor's phone works out where it is, within centimetres on benchmark video, and speaks one step at a time. No beacons, nothing to install.</p>
       <div class="cta-row">
         <a class="btn btn-candy btn-lg" href="/helper.html">Open the sample building
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -56,7 +56,7 @@
       <div class="heroproof" role="list" aria-label="Key numbers">
         <div role="listitem"><b>338M</b><span>people with blindness or serious vision loss</span></div>
         <div role="listitem"><b>15 min</b><span>to map a floor, with 2 phones and 0 beacons</span></div>
-        <div role="listitem"><b>1.4 cm</b><span>visitor located on real indoor video</span></div>
+        <div role="listitem"><b>1.4 cm</b><span>camera located on benchmark video of a small room</span></div>
         <div role="listitem"><b>$4/day</b><span>runs a building on one AWS server</span></div>
       </div>
       <p class="trust"><span>Free</span><span>Runs in the phone's browser</span><span>Used with a cane or guide dog</span></p>
@@ -394,8 +394,8 @@
     <div class="container">
       <div class="section-head">
         <span class="eyebrow"><span class="dot"></span>Results</span>
-        <h2 id="results-title">Accurate to 1.4 cm on real indoor video, with 92% of frames located.</h2>
-        <p class="lead">That is the median over a replayed visit through the live server, with 92% of frames located. Every number here comes from a script in the repo. Mapping and relocalisation use the Microsoft 7-Scenes "heads" scene. Timing is the median of 15 runs on Graviton4 (c8g.xlarge).</p>
+        <h2 id="results-title">1.4 cm on replayed benchmark video of a small room, with 92% of frames located.</h2>
+        <p class="lead">That is the median over a replayed visit through the live server (Microsoft 7-Scenes, a small room). A larger office room reached 16 cm. No blind user has tested it yet. Every number here comes from a script in the repo. Mapping and relocalisation use the Microsoft 7-Scenes "heads" scene. Timing is the median of 15 runs on Graviton4 (c8g.xlarge).</p>
       </div>
 
       <div class="bento">
@@ -443,10 +443,10 @@
         <article class="span-6 placeholder-card reveal" style="min-height:0">
           <span class="ph-tag">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-            Placeholder · not yet measured
+            Not yet tested with users
           </span>
-          <h3 class="t-h3" style="font-size:clamp(22px,2.4vw,30px)">Tests with blind and low-vision visitors: results added today.</h3>
-          <p style="max-width:680px">Blind and low-vision participants are walking real routes with a sighted spotter beside them and their own cane or dog. Arrival, checkpoint error and every agent decision are still being measured, so there are no numbers here yet.</p>
+          <h3 class="t-h3" style="font-size:clamp(22px,2.4vw,30px)">No blind or low-vision user has tested Waymark yet.</h3>
+          <p style="max-width:680px">Every number above comes from replayed benchmark video, not from people. A test with blind and low-vision visitors, a sighted spotter beside them and their own cane or dog, is the next step. The protocol is in the technical report.</p>
           <div id="results-body" aria-live="polite" aria-busy="true"><p class="results-note">Checking the latest evaluation run…</p></div>
         </article>
       </div>
