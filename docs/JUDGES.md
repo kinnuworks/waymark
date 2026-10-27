@@ -10,7 +10,7 @@
 
 - [README](../README.md) for the results table.
 - [Technical report](REPORT.md), sections 5 (agentic loop) and 7 (evaluation).
-- The demo video on the Devpost page.
+- [The demo video](https://youtu.be/w2s9TBhtiiI) (2:28).
 
 ## Where each criterion is answered
 
