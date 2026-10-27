@@ -129,8 +129,14 @@
     <div class="container">
       <div class="section-head">
         <span class="eyebrow"><span class="dot"></span>Why it matters</span>
-        <h2 id="why-title">Most buildings will never get indoor navigation.</h2>
-        <p class="lead">Indoor wayfinding usually needs hardware on the walls and a paid survey. A library or clinic on a small budget won't pay for either, so blind visitors still have to ask at the front desk.</p>
+        <h2 id="why-title">Inside a building, a blind visitor still has to find someone to ask.</h2>
+        <p class="lead">GPS stops at the front door. Indoor guidance today needs beacons on the walls and a paid survey, so almost no library, clinic or college has it.</p>
+        <div class="impact reveal" role="list">
+          <div role="listitem"><b>43 million</b><span>people are blind</span></div>
+          <div role="listitem"><b>295 million</b><span>more have moderate or severe vision loss</span></div>
+          <div role="listitem" class="impact__ours"><b>15 min</b><span>to map a floor with Waymark: 2 phones, 1 printed sheet, 0 beacons</span></div>
+        </div>
+        <p class="t-micro" style="margin-top:10px">Global estimates for 2020: Bourne et al., <a href="https://pubmed.ncbi.nlm.nih.gov/33275950/" style="text-decoration:underline">The Lancet Global Health, 2021</a>.</p>
       </div>
       <div class="compare">
         <article class="card card--flat compare__old reveal">
@@ -142,7 +148,7 @@
               <g fill="none" stroke="#86868B" stroke-opacity=".35"><circle cx="60" cy="40" r="16"/><circle cx="170" cy="40" r="16"/><circle cx="300" cy="40" r="16"/><circle cx="120" cy="110" r="16"/><circle cx="240" cy="110" r="16"/><circle cx="350" cy="110" r="16"/></g>
             </svg>
           </div>
-          <h3>Beacons on every wall and a survey team.</h3>
+          <h3>Today: beacons on every wall and a survey team.</h3>
           <ul class="compare__list">
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Bluetooth beacons fixed around the building, each with a battery to replace</li>
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>A vendor visit to survey and calibrate before anyone can use it</li>
@@ -159,7 +165,7 @@
               <g transform="translate(186 134)"><rect width="28" height="12" rx="2" fill="#fff" stroke="#1D1D1F" stroke-width="1.5"/><path d="M0 0h7v6H0zM14 0h7v6h-7zM7 6h7v6H7zM21 6h7v6h-7z" fill="#1D1D1F"/></g>
             </svg>
           </div>
-          <h3>Two phones and one sheet of paper.</h3>
+          <h3>Waymark: two phones and one sheet of paper.</h3>
           <ul class="compare__list">
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>A printed A4 ChArUco board by the entrance gives every walk the same origin and real scale</li>
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Two volunteers walk the floor for about 15 minutes and mark rooms, doors, stairs and lifts</li>
@@ -175,7 +181,7 @@
     <div class="container">
       <div class="section-head">
         <span class="eyebrow"><span class="dot"></span>How it works</span>
-        <h2 id="how-title">Two walks make the map. One phone follows it.</h2>
+        <h2 id="how-title">Map a floor once. Every blind visitor after that gets spoken directions.</h2>
         <p class="lead">All of the vision runs in OpenCV 5 on one AWS Graviton4 instance. The phones just send camera frames and read out the replies.</p>
       </div>
 
@@ -187,7 +193,7 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14M15 6v14"/></svg>
               Mapping
             </span>
-            <h3>A measured map in about 15 minutes.</h3>
+            <h3>1. Two volunteers map the floor in 15 minutes.</h3>
             <p class="lead">Both volunteers start at the board, so their walks share one origin and real metric scale from the first frame. The server refines each walk with bundle adjustment, fuses the 3D points they both saw, and draws a floor plan with a route graph.</p>
             <ul class="feat-list">
               <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>A coordinator splits the unmapped corridors between walkers and tells each one where to go</li>
@@ -232,7 +238,7 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="5"/></svg>
               Locating
             </span>
-            <h3>Located every second, to a few centimetres.</h3>
+            <h3>2. The visitor&rsquo;s phone knows where it is, every second.</h3>
             <p class="lead">About once a second the visitor's phone sends one camera frame and its compass heading. The server finds a shortlist of nearby keyframes, matches features to the map's 3D points, and solves for position and heading.</p>
             <ul class="feat-list">
               <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Median 1.77 cm and 1.98° on the 7-Scenes relocalisation protocol</li>
@@ -271,7 +277,7 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Z"/><path d="M9 12l2 2 4-4"/></svg>
               Guidance agent
             </span>
-            <h3>An agent that knows when it's unsure.</h3>
+            <h3>3. When it isn&rsquo;t sure, it stops the visitor and calls a person.</h3>
             <p class="lead">Every frame, the agent looks at how confident the fix is and decides what to say. Each decision is logged with what it saw and why it acted, and the helper console shows that log live.</p>
             <ul class="feat-list">
               <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Asks the visitor to pan when the camera can't see enough, and to slow down when unsure</li>
@@ -300,7 +306,7 @@
     <div class="container">
       <div class="section-head">
         <span class="eyebrow"><span class="dot"></span>Try it here</span>
-        <h2 id="try-title">Push the agent and hear what it says.</h2>
+        <h2 id="try-title">Make the guide unsure and hear what it tells the visitor.</h2>
         <p class="lead">These controls run the same rules as the guidance agent on the server. Move the confidence down, put stairs ahead, or walk off the route.</p>
       </div>
 
@@ -382,13 +388,13 @@
     <div class="container">
       <div class="section-head">
         <span class="eyebrow"><span class="dot"></span>Results</span>
-        <h2 id="results-title">Measured against ground truth.</h2>
-        <p class="lead">Every number here comes from a script in the repo. Mapping and relocalisation use the Microsoft 7-Scenes "heads" scene. Timing is the median of 15 runs on Graviton4 (c8g.xlarge).</p>
+        <h2 id="results-title">It locates a visitor to 1.4 cm on real indoor video.</h2>
+        <p class="lead">That is the median over a replayed visit through the live server, with 92% of frames located. Every number here comes from a script in the repo. Mapping and relocalisation use the Microsoft 7-Scenes "heads" scene. Timing is the median of 15 runs on Graviton4 (c8g.xlarge).</p>
       </div>
 
       <div class="bento">
         <article class="is-accent span-3 reveal">
-          <span class="eyebrow">Two walkers merged</span>
+          <span class="eyebrow">Two volunteers&rsquo; maps agree within</span>
           <div class="stat">1.2<small>cm</small></div>
           <p class="t-title" style="color:#2A1700">Median keyframe error after merging two walks.</p>
           <p>Worst keyframe 4.2 cm. Reprojection error drops from 28.4 px to 2.3 px. Only the first and last 10 frames of each walk get a reference pose, the same way the board anchors a real walk.</p>
@@ -406,7 +412,7 @@
         </article>
 
         <article class="reveal">
-          <span class="eyebrow">Relocalisation</span>
+          <span class="eyebrow">Phone found from one photo (benchmark)</span>
           <div class="stat" style="font-size:clamp(36px,4vw,48px)">1.77<small>cm</small></div>
           <p class="t-title" style="color:var(--ink)">and 1.98° median, with no prior pose.</p>
           <div class="kv"><span>within 5 cm, 5° <b>95%</b></span><span>failed <b>0 / 100</b></span></div>
@@ -414,15 +420,15 @@
         </article>
 
         <article class="reveal" style="--i:1">
-          <span class="eyebrow">One visitor frame</span>
+          <span class="eyebrow">Time to answer one photo</span>
           <div class="stat" style="font-size:clamp(36px,4vw,48px)">352<small>ms</small></div>
           <p class="t-title" style="color:var(--ink)">end to end on Graviton4 c8g.xlarge.</p>
           <div class="timebar" aria-hidden="true"><i class="a"></i><i class="b"></i></div>
-          <p class="bento__foot">ALIKED features take 541 ms. Everything else, matching and PnP included, takes about 30 ms.</p>
+          <p class="bento__foot">ALIKED features take about 308 ms. Everything else, matching and PnP included, takes about 45 ms.</p>
         </article>
 
         <article class="reveal" style="--i:2">
-          <span class="eyebrow">Bundle adjustment</span>
+          <span class="eyebrow">Map correction (bundle adjustment)</span>
           <div class="stat" style="font-size:clamp(36px,4vw,48px)">4.6<small>mm</small></div>
           <p class="t-title" style="color:var(--ink)">pose error recovered with 15% gross outliers.</p>
           <div class="kv"><span>solve time <b>0.4 s</b></span></div>
@@ -433,7 +439,7 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
             Placeholder · not yet measured
           </span>
-          <h3 class="t-h3" style="font-size:clamp(22px,2.4vw,30px)">Field test results publish on Oct 27.</h3>
+          <h3 class="t-h3" style="font-size:clamp(22px,2.4vw,30px)">Tests with blind and low-vision visitors: results added today.</h3>
           <p style="max-width:680px">Blind and low-vision participants are walking real routes with a sighted spotter beside them and their own cane or dog. Arrival, checkpoint error and every agent decision are still being measured, so there are no numbers here yet.</p>
           <div id="results-body" aria-live="polite" aria-busy="true"><p class="results-note">Checking the latest evaluation run…</p></div>
         </article>
@@ -446,7 +452,7 @@
     <div class="container">
       <div class="section-head">
         <span class="eyebrow"><span class="dot"></span>Architecture</span>
-        <h2 id="arch-title">How a frame travels.</h2>
+        <h2 id="arch-title">The phone sends a photo. The server sends back one direction.</h2>
         <p class="lead">Phones do no vision work. They send a JPEG about once a second and speak the reply, so any recent phone browser can take part.</p>
       </div>
       <div class="arch">
@@ -511,7 +517,7 @@
     <div class="container">
       <div class="section-head">
         <span class="eyebrow"><span class="dot"></span>Questions</span>
-        <h2 id="faq-title">Straight answers.</h2>
+        <h2 id="faq-title">Questions people ask.</h2>
       </div>
       <div class="faq">
         <details>
