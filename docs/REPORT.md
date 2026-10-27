@@ -122,7 +122,7 @@ HLoc is still more accurate on this scene. Waymark gets within a centimetre of i
 
 ### 7.3 Field test in a real building
 
-No blind or low-vision user has tested Waymark yet. All evidence in this report comes from replayed benchmark video (7-Scenes) and the system replay. A field test is the next step; the planned protocol is in §9.
+On 27 Oct 2026 the developer, who is highly short-sighted, mapped a real floor with one phone and then followed Waymark with his glasses off, with a sighted spotter beside him. Results are added here after the run. This is a real-building, real-phone test, not a study with blind or low-vision participants; that comes next, with the protocol in §9.
 
 ### 7.4 Speed and cost on Graviton
 

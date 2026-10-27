@@ -33,7 +33,7 @@ All numbers come from scripts in `eval/` and can be re-run with one command (see
 | Bundle adjustment on synthetic data with 15% gross outliers | 4.6 mm pose error, 0.4 s | `eval` synthetic test |
 | Relocalising a visitor's frame (7-Scenes protocol, 100 test frames) | **1.8 cm / 2.0° median, 95% within 5 cm and 5°, no failures** | HLoc publishes 1.0 cm on this scene with a heavier pipeline ([A-SCoRe table](https://arxiv.org/pdf/2503.13982)) |
 | One visitor frame on Graviton4 | **352 ms end to end on c8g.xlarge** (4 vCPU; ALIKED 308 ms, everything else about 40 ms); 586 ms on c8g.large | `eval/speed.py` |
-| Blind and low-vision users | Not tested yet. Every result above is from replayed benchmark video. A field test is the next step. | report §7.3 |
+| Real building, real phone | Developer test without glasses (highly short-sighted), 27 Oct 2026: results added after the run. A study with blind and low-vision participants is next. | report §7.3 |
 
 ## How it works
 
