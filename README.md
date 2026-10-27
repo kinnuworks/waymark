@@ -12,6 +12,13 @@ GPS stops at the front door. Indoor guidance for blind and low-vision people exi
 
 **Try it in 30 seconds** (no install, no account): [open the sample building](https://5hfibd6grf.execute-api.us-east-1.amazonaws.com/helper.html) to see a merged two-walker map, a route and every decision the guide made · [guidance app](https://5hfibd6grf.execute-api.us-east-1.amazonaws.com/go.html) on a phone · [mapping app](https://5hfibd6grf.execute-api.us-east-1.amazonaws.com/map.html) · [landing page](https://5hfibd6grf.execute-api.us-east-1.amazonaws.com/) · [technical report](docs/REPORT.md) · [judges' guide](docs/JUDGES.md)
 
+## How a blind visitor opens it
+
+- **Screen reader first.** Visitors use the VoiceOver (iPhone) or TalkBack (Android) they already know. Every control is a labelled button, and the app asks up front whether a screen reader is on, so directions are not spoken twice.
+- **No searching for the app.** Each building gets its own link, `go.html?building=<id>`, shown in the mapping app as soon as the map is built. A venue texts it to visitors before they arrive, or writes it to an NFC tag beside the entrance board: hold the phone to the tag and that building's guide opens. A QR code would need aiming, so we don't rely on one.
+- **Choosing a destination.** Swipe through the named places, or dictate with the keyboard microphone ("take me to the lift").
+- **While walking.** One spoken instruction at a time, haptics, and large Repeat, Where am I? and Call a helper buttons.
+
 ## Results
 
 All numbers come from scripts in `eval/` and can be re-run with one command (see [Reproduce](#reproduce)).

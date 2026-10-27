@@ -554,6 +554,16 @@ qs('#build-btn').addEventListener('click', async () => {
     el.hidden = !Object.keys(stats).length;
     el.innerHTML = Object.entries(stats).map(([k, v]) =>
       `<div class="stat"><span class="stat__label">${escapeHtml(k.replace(/_/g, ' '))}</span><span class="stat__value">${escapeHtml(typeof v === 'number' ? (Number.isInteger(v) ? v.toLocaleString() : v.toFixed(2)) : String(v))}</span></div>`).join('');
+    // The link visitors open: it skips the building question. Put it on an NFC tag by the board.
+    const link = `${location.origin}/go.html?building=${encodeURIComponent(S.building.id)}`;
+    let share = qs('#visitor-link');
+    if (!share) {
+      share = document.createElement('p');
+      share.id = 'visitor-link';
+      share.className = 'status';
+      el.after(share);
+    }
+    share.innerHTML = `<small>Visitor link</small><a href="${escapeHtml(link)}">${escapeHtml(link)}</a><br>Write it to an NFC tag next to the entrance board, or text it to visitors before they arrive.`;
     say(r.ok === false ? 'The build finished with problems.' : 'Map built.');
     poll();
   } catch (e) {
