@@ -560,3 +560,11 @@ table.data tbody th{font-weight:600;color:var(--ink)}
 .impact span{display:block;margin-top:6px;font-size:var(--fs-small);color:var(--ink-3);line-height:1.4}
 .impact .impact__ours{background:var(--accent-wash);box-shadow:0 0 0 1px color-mix(in oklab,var(--accent) 40%,transparent)}
 @media (max-width:760px){.impact{grid-template-columns:1fr}}
+
+/* Hero proof numbers: what a 10-second skim must catch */
+.heroproof{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:880px;margin:28px auto 0;text-align:left}
+.heroproof>div{padding:14px 16px;border-radius:var(--r-md);background:var(--surface);box-shadow:var(--shadow-1)}
+.heroproof>div:first-child{background:var(--accent-wash);box-shadow:0 0 0 1px color-mix(in oklab,var(--accent) 45%,transparent)}
+.heroproof b{display:block;font-family:var(--font-display);font-size:clamp(24px,2.6vw,32px);font-weight:750;letter-spacing:-.03em;line-height:1.05;color:var(--ink)}
+.heroproof span{display:block;margin-top:4px;font-size:13px;line-height:1.35;color:var(--ink-3)}
+@media (max-width:760px){.heroproof{grid-template-columns:1fr 1fr}}
