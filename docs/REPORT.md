@@ -55,13 +55,30 @@ Two agents act on what OpenCV measures.
 | Action | Triggered by |
 |---|---|
 | Give the next instruction (turn, walk N metres, arrived and on which side) | Confident fix on the route |
-| Ask the visitor to pan slowly | Fewer than 2 frames without a confident fix |
+| Ask the visitor to pan slowly | 1 or 2 frames without a confident fix |
 | Ask the visitor to stop walking | 3 or more frames without a confident fix |
 | Hand over to the human helper | 6 frames without a confident fix |
 | Add "slowly" to the instruction | Confidence between 0.35 and 0.6 |
 | Re-route, then prefer fewer turns after 3 re-routes | More than 1.6 m from the route |
 | Stop and warn before stairs | Stairs within 3 m ahead and confidence below 0.8 |
 | Flag the area for re-mapping | Sharp images that retrieve the right place but no longer match it |
+
+```mermaid
+flowchart LR
+  F[Phone frame + compass] --> Q{Image sharp and lit?}
+  Q -- no --> P[Ask to pan slowly]
+  Q -- yes --> L[OpenCV 5: ALIKED, matching, MAGSAC++ PnP]
+  L --> C[Position + confidence<br/>inliers, reprojection error, plausible move]
+  C -->|confident, on route| I[Speak next instruction]
+  C -->|0.35 to 0.6| S[Add 'slowly']
+  C -->|1 to 2 misses| P
+  C -->|3+ misses| T[Ask to stop]
+  C -->|6 misses| H[Call human helper]
+  C -->|stairs within 3 m, below 0.8| W[Stop and warn]
+  C -->|more than 1.6 m off route| R[Re-route, fewer turns]
+  I & S & P & T & H & W & R --> D[(Decision trace: saw, decided, why)]
+  D --> HC[Helper console, live]
+```
 
 Every decision is stored with what the agent saw, what it decided and why, and shown in the helper console.
 

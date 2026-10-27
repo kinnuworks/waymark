@@ -22,4 +22,4 @@
 | User experience (10%) | The guidance app is built for VoiceOver and TalkBack first: one instruction at a time, haptics, "repeat" and "where am I?". Volunteers need no training; the coordinator tells them where to walk |
 | Documentation and presentation (10%) | This guide, README, REPORT, API.md, architecture diagram, video |
 | Cloud delivery, reproducibility, responsible operation (10%) | One CDK stack, deploy and update scripts, traces in DynamoDB, CloudWatch dashboard, budget alarm, no SSH. Every number re-runs from `eval/`. Safety rules live in code (REPORT §9) |
-| Agentic Vision award | REPORT §5: OpenCV measurements decide each next action (instruct, ask to pan, slow down, re-route, stop at stairs, flag for re-mapping, hand off). See the trace in the helper console |
+| Agentic Vision award | REPORT §5 (agent loop diagram and rules table): OpenCV measurements decide each next action (instruct, ask to pan, slow down, re-route, stop at stairs, flag for re-mapping, hand off). See the trace in the helper console |
