@@ -24,7 +24,7 @@ Most buildings will never get beacons or a vendor visit. Waymark asks what can b
 
 ![Architecture](architecture.svg)
 
-Phones run a web page only: no app store, no install. All vision runs in OpenCV 5.0 on one AWS Graviton4 instance (c8g.large), behind API Gateway for HTTPS. The decision trace of every walker and visitor goes to DynamoDB, walk frames go to S3 so any walk can be replayed through the pipeline, and logs and a dashboard live in CloudWatch. Everything is one CDK stack; updates go through SSM with no SSH.
+Phones run a web page only: no app store, no install. All vision runs in OpenCV 5.0 on one AWS Graviton4 instance (c8g.xlarge, 4 vCPU), behind API Gateway for HTTPS. The decision trace of every walker and visitor goes to DynamoDB, walk frames go to S3 so any walk can be replayed through the pipeline, and logs and a dashboard live in CloudWatch. Everything is one CDK stack; updates go through SSM with no SSH.
 
 ## 4. OpenCV 5 implementation
 
@@ -118,11 +118,11 @@ The map is triangulated from the training sequence with its reference poses, the
 | Waymark (ALIKED, VLAD shortlist, MNN + MAGSAC++ PnP, LightGlue only when weak) | **1.77 cm, 1.98°** | **95%** (100% within 25 cm and 10°; 0 of 100 failed) |
 | HLoc, SuperPoint features (published, [A-SCoRe table](https://arxiv.org/pdf/2503.13982)) | 1.0 cm | not reported per scene |
 
-HLoc is still more accurate on this scene. Waymark gets within a centimetre of it without a separate retrieval network and with LightGlue on fewer than one frame in ten, which is what lets one 2-vCPU Graviton instance guide a visitor at one frame per second. A visitor needs metre-level accuracy to be told "turn left in 2 metres", so the remaining gap has no effect on guidance.
+HLoc is still more accurate on this scene. Waymark gets within a centimetre of it without a separate retrieval network and with LightGlue on fewer than one frame in ten, which is what lets one 4-vCPU Graviton instance guide a visitor at one frame per second. A visitor needs metre-level accuracy to be told "turn left in 2 metres", so the remaining gap has no effect on guidance.
 
 ### 7.3 Field test in a real building
 
-FIELD_TABLE
+Field test with blind and low-vision participants: in progress on 27 Oct 2026; results will be added here. Until then the evidence is the 7-Scenes benchmarks and the system replay below.
 
 ### 7.4 Speed and cost on Graviton
 

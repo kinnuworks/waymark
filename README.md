@@ -6,6 +6,8 @@
 
 GPS stops at the front door. Indoor guidance for blind and low-vision people exists, but it needs beacons installed in the ceiling or a venue mapped by a large company first, so almost no buildings have it. Waymark needs a printed sheet of paper, two phones with a web browser, and OpenCV 5 running on one AWS Graviton instance.
 
+**Impact.** In 2020, 43.3 million people were blind and 295 million had moderate or severe vision impairment ([Bourne et al., The Lancet Global Health, 2021](https://pubmed.ncbi.nlm.nih.gov/33275950/)). With Waymark a floor is mapped once, in about 15 minutes, with two phones and one printed sheet. After that every visitor gets spoken directions in the browser for free. The whole service runs on one instance at about $3.83 a day.
+
 ![Waymark: the guidance app, the agent and the mapping coordinator](docs/media/hero.jpg)
 
 **Try it in 30 seconds** (no install, no account): [open the sample building](https://5hfibd6grf.execute-api.us-east-1.amazonaws.com/helper.html) to see a merged two-walker map, a route and every decision the guide made · [guidance app](https://5hfibd6grf.execute-api.us-east-1.amazonaws.com/go.html) on a phone · [mapping app](https://5hfibd6grf.execute-api.us-east-1.amazonaws.com/map.html) · [landing page](https://5hfibd6grf.execute-api.us-east-1.amazonaws.com/) · [technical report](docs/REPORT.md) · [judges' guide](docs/JUDGES.md)
@@ -16,14 +18,15 @@ All numbers come from scripts in `eval/` and can be re-run with one command (see
 
 | What was measured | Result | Data |
 |---|---|---|
-| **Whole system, through the live HTTP API on Graviton:** two volunteers calibrate, walk and mark places; the map is built; a visitor is guided | **visitor located to 1.4 cm median (3.2 cm at the 90th percentile), 92% of frames confidently located, 354 ms per frame** | Real 7-Scenes video with a virtual entrance board rendered at a fixed spot (`eval/system_replay.py`); nothing in the pipeline sees the ground truth |
+| **Whole system, through the live HTTP API on Graviton:** two volunteers calibrate, walk and mark places; the map is built; a visitor is guided | **"heads" room: visitor located to 1.4 cm median (3.2 cm at the 90th percentile), 92% of frames confidently located, 354 ms per frame.** "office" room: 16 cm median, 28 cm at the 90th percentile (that walk never returned to the board, so its drift was never corrected) | Real 7-Scenes video with a virtual entrance board rendered at a fixed spot (`eval/system_replay.py`); nothing in the pipeline sees the ground truth |
+| Same replay on the 7-Scenes stairs (failure case) | tracking lost on 90% of frames; the guide asked for a slow pan, asked the visitor to stop, then called the helper | `eval/system_replay.py`, see report 7.0 |
 | Two walkers merged into one map: keyframe position error | **1.2 cm median, 4.2 cm worst** | Microsoft 7-Scenes, two sequences as two walkers, ground truth from the dataset |
 | One walk, tracked live with no board in view | 13 to 23 cm median | same |
 | Same walk after board-anchored bundle adjustment | 2.0 to 7.5 cm median | same |
 | Bundle adjustment on synthetic data with 15% gross outliers | 4.6 mm pose error, 0.4 s | `eval` synthetic test |
 | Relocalising a visitor's frame (7-Scenes protocol, 100 test frames) | **1.8 cm / 2.0° median, 95% within 5 cm and 5°, no failures** | HLoc publishes 1.0 cm on this scene with a heavier pipeline ([A-SCoRe table](https://arxiv.org/pdf/2503.13982)) |
 | One visitor frame on Graviton4 | **352 ms end to end on c8g.xlarge** (4 vCPU; ALIKED 308 ms, everything else about 40 ms); 586 ms on c8g.large | `eval/speed.py` |
-| Real building, blind and low-vision participants | FIELD_RESULT | see the report |
+| Real building, blind and low-vision participants | In progress on 27 Oct 2026; results will be added here. Until then the evidence is the 7-Scenes benchmarks and the system replay above. | see the report |
 
 ## How it works
 
